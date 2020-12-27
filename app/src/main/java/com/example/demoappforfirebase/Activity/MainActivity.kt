@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initHelpers()
         initDrawer()
         setListeners()
-        //cao djole
+        //bananana
         /*usersRecycler = findViewById(R.id.usersRecycler)
         usersRecycler.layoutManager = LinearLayoutManager(this)
         database = FirebaseDatabase.getInstance().reference
