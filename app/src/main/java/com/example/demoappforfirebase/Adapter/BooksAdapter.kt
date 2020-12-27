@@ -21,6 +21,7 @@ import kotlin.collections.ArrayList
 
 class BooksAdapter(private val dataSet: ArrayList<Book>) :
     RecyclerView.Adapter<BooksAdapter.BookHolder>() {
+    //comment added
     private lateinit var fragmentHelper: FragmentHelper
     class BookHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.title)
