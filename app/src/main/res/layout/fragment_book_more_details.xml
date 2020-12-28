@@ -31,6 +31,21 @@
         android:textColor="@color/black"
         android:textSize="18sp" />
 
+    <TextView
+        android:id="@+id/bookDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:id="@+id/bookCategories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"/>
+
     <Button
         android:id="@+id/btnContactUser"
         android:layout_width="wrap_content"

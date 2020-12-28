@@ -10,7 +10,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.example.demoappforfirebase"
@@ -70,4 +70,6 @@ dependencies {
 
     // ViewModel Kotlin support
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycleVersion"
+    //FlexBox layout
+    implementation 'com.google.android:flexbox:1.1.0'
 }

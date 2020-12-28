@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
@@ -210,13 +211,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val extras: Bundle = data?.extras!!
-            val imageBitmap = extras["data"] as Bitmap?
-            if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
-                bookImage.setImageBitmap(imageBitmap)
+        when (requestCode) {
+            REQUEST_IMAGE_CAPTURE -> {
+                val extras: Bundle = data?.extras!!
+                val imageBitmap = extras["data"] as Bitmap?
+                if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
+                    bookImage.setImageBitmap(imageBitmap)
+                }
+                bookVM.imageUrl.value = imageBitmap?.let { encodeBitmap(it) }
             }
-            bookVM.imageUrl.value = imageBitmap?.let { encodeBitmap(it) }
+            ImageUtil.REQUEST_TAKE_PHOTO -> {
+                if (resultCode == RESULT_OK) {
+                    bookVM.imageUrl.value = ImageUtil.addImageFromCamera(this)
+                } else if (resultCode == RESULT_CANCELED) {
+                    ImageUtil.addingPictureCanceled(this)
+                }
+            }
+            ImageUtil.REQUEST_GALLERY_PHOTO -> {
+                if (resultCode == RESULT_OK) {
+                    bookVM.imageUrl.value = ImageUtil.addImageFromGallery(this, data?.data.toString())
+                }
+            }
         }
     }
 
