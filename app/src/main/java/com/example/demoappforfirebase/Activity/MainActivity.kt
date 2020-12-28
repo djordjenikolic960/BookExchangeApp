@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initHelpers()
         initDrawer()
         setListeners()
+        //bananana
         /*usersRecycler = findViewById(R.id.usersRecycler)
         usersRecycler.layoutManager = LinearLayoutManager(this)
         database = FirebaseDatabase.getInstance().reference
