@@ -5,6 +5,28 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <color name="peachOrangeLight">#FFC391</color>
+    <color name="peachOrangeDark">#FFC492</color>
+    <color name="backgroundColor">#1B1E25</color>
+
+    <!--Black scale-->
+    <color name="black_10percent">#1A000000</color>
+    <color name="black_12percent">#1E000000</color>
+    <color name="black_25percent">#40000000</color>
+    <color name="black_40percent">#66000000</color>
+    <color name="black_54percent">#8A000000</color>
+    <color name="black_70percent">#B2000000</color>
+    <color name="black_87percent">#DE000000</color>
+    <color name="black">#000000</color>
+    <color name="black_overlay">#66000000</color>
+
+    <!--White scale-->
+    <color name="white_10percent">#19FFFFFF</color>
+    <color name="white_12percent">#1EFFFFFF</color>
+    <color name="white_25percent">#40FFFFFF</color>
+    <color name="white_30percent">#4CFFFFFF</color>
+    <color name="white_54percent">#8AFFFFFF</color>
+    <color name="white_70percent">#B2FFFFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>

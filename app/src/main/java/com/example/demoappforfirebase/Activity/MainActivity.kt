@@ -19,6 +19,7 @@ import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Utils.FragmentHelper
+import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -26,6 +27,7 @@ import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_book.*
+import kotlinx.android.synthetic.main.view_bottom_toolbar.*
 import kotlinx.android.synthetic.main.view_content_main.*
 import java.io.ByteArrayOutputStream
 
@@ -45,6 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        StyleUtil.stylizeStatusBar(this@MainActivity, true)
         setSupportActionBar(toolbar)
         initHelpers()
         initDrawer()
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setListeners() {
-        addBook.setOnClickListener {
+        toolbarItemAdd.setOnClickListener {
             fragmentHelper.replaceFragment(BookFragment::class.java)
         }
     }
@@ -226,18 +229,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         toggle.isDrawerIndicatorEnabled =
             fragmentHelper.isFragmentVisible(BookListFragment::class.java)
-
         supportActionBar!!.subtitle = null
 
         when {
             fragmentHelper.isFragmentVisible(BookListFragment::class.java) -> {
+                supportActionBar!!.setDisplayHomeAsUpEnabled(false)
                 toggle.isDrawerIndicatorEnabled = true
+                supportActionBar!!.title = null
             }
             fragmentHelper.isFragmentVisible(BookFragment::class.java) -> {
                 toggle.isDrawerIndicatorEnabled = false
             }
         }
-        addBook.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
+
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
             drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         } else {
