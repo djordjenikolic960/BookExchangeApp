@@ -14,9 +14,7 @@ class PreferencesHelper(context: Context) {
     fun getUserId(): String {
         return preferences.getString("activeUserId", "").toString()
     }
-
     /// User Sessions
-
 
     fun setIndex(index: Int) {
         preferences.edit().putInt("index", index).apply()

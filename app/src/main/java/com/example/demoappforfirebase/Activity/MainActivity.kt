@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onStart() {
         super.onStart()
-        if(preferencesHelper.getUserId() == ""){
+        if(preferencesHelper.getUserId().isEmpty()){
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
         }
