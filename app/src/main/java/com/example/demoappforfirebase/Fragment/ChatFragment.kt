@@ -15,6 +15,7 @@ import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat.*
 import java.lang.StringBuilder
@@ -46,15 +47,29 @@ class ChatFragment : Fragment() {
                 val cardParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 val textView = TextView(requireContext())
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                if (message.author == preferencesHelper.getUserId()) {
-                    params.gravity = Gravity.END
+                if (message.author ==  preferencesHelper.getUserId()) {
+                    cardParams.gravity = Gravity.END
+                    cardView.setCardBackgroundColor(resources.getColor(R.color.peachOrangeDark))
+
                 } else {
-                    params.gravity = Gravity.START
+                    cardView.setCardBackgroundColor(resources.getColor(R.color.white))
+                    cardParams.gravity = Gravity.START
                 }
-                textView.textSize = 25f
+                cardParams.setMargins(4, 4, 4, 4)
+                cardView.layoutParams = cardParams
+                cardView.radius = 50f
+                textView.textSize = 18f
+                textView.setTextColor(resources.getColor(R.color.white))
+                params.setMargins(
+                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
+                    resources.getDimension(R.dimen.message_vertical_margin).toInt(),
+                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
+                    resources.getDimension(R.dimen.message_vertical_margin).toInt()
+                )
                 textView.layoutParams = params
                 textView.text = message.message
-                chat.addView(textView)
+                cardView.addView(textView)
+                chat.addView(cardView)
             }
         })
         database = FirebaseDatabase.getInstance().reference
@@ -95,6 +110,9 @@ class ChatFragment : Fragment() {
             database.child("Chats").child(id).child(generatedId)
                 .setValue(Message(preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis()))
             message.editableText.clear()
+        }
+        message.setOnFocusChangeListener { _, hasFocus ->
+            StyleUtil.stylizeStatusBar(requireActivity(), !hasFocus)
         }
     }
 }
