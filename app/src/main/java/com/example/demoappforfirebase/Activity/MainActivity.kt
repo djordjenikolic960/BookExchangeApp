@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java)
                 }
 
-                fragmentHelper.isFragmentVisible(ChatsFragment::class.java) -> {
+                fragmentHelper.isFragmentVisible(ChatListFragment::class.java) -> {
                     fragmentHelper.replaceFragment(BookListFragment::class.java)
                 }
             }
@@ -284,6 +284,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragmentHelper.isFragmentVisible(BookFragment::class.java) -> {
                 toggle.isDrawerIndicatorEnabled = false
             }
+            fragmentHelper.isFragmentVisible(ChatListFragment::class.java) -> supportActionBar!!.title =
+                "Messages"
+        }
+
+        bottomAppBar.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        val actionOpenChats = menu?.findItem(R.id.action_chat)
+        actionOpenChats?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
+
+        actionOpenChats?.setOnMenuItemClickListener {
+            fragmentHelper.replaceFragment(ChatListFragment::class.java)
+           true
         }
 
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
@@ -306,7 +319,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.drawer_item_chats -> {
-                fragmentHelper.replaceFragment(ChatsFragment::class.java)
+                fragmentHelper.replaceFragment(ChatListFragment::class.java)
             }
         }
         return true
