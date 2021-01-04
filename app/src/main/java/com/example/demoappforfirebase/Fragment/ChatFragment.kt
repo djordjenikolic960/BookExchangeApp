@@ -101,6 +101,7 @@ class ChatFragment : Fragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
+                // Failed to read value
             }
         }
         database.addValueEventListener(databaseListener)
