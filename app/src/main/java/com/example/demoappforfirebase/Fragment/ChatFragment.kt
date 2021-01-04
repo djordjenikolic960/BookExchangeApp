@@ -14,9 +14,8 @@ import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.R
-import com.google.firebase.auth.ktx.auth
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_chat.*
 import java.lang.StringBuilder
 
@@ -26,6 +25,7 @@ class ChatFragment : Fragment() {
     private var chatId: String = ""
     private var id = ""
     private lateinit var bookVM: BookViewModel
+    private lateinit var preferencesHelper: PreferencesHelper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_chat, container, false)
         val args = arguments
@@ -38,6 +38,7 @@ class ChatFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        preferencesHelper = PreferencesHelper(requireContext())
         chatVM.messages.observe(viewLifecycleOwner, {
             chat.removeAllViews()
             for (message in it) {
@@ -45,7 +46,7 @@ class ChatFragment : Fragment() {
                 val cardParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 val textView = TextView(requireContext())
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                if (message.author == Firebase.auth.uid) {
+                if (message.author == preferencesHelper.getUserId()) {
                     params.gravity = Gravity.END
                 } else {
                     params.gravity = Gravity.START
@@ -66,10 +67,10 @@ class ChatFragment : Fragment() {
                         if (postSnapshot.key == "Chats") {
                             for (snapShot in postSnapshot.children) {
                                 val stringBuilder = StringBuilder()
-                                id = if (Firebase.auth.uid.toString() > chatId) {
-                                    stringBuilder.append(Firebase.auth.uid).append(chatId).toString()
+                                id = if (preferencesHelper.getUserId() > chatId) {
+                                    stringBuilder.append(preferencesHelper.getUserId()).append(chatId).toString()
                                 } else {
-                                    stringBuilder.append(chatId).append(Firebase.auth.uid).toString()
+                                    stringBuilder.append(chatId).append(preferencesHelper.getUserId()).toString()
                                 }
                                 if (snapShot.key == id) {
                                     for (message in snapShot.children) {
@@ -80,7 +81,6 @@ class ChatFragment : Fragment() {
                                 chatVM.messages.value = messages
                             }
                         }
-
                     }
                 }
             }
@@ -93,7 +93,7 @@ class ChatFragment : Fragment() {
         btnSend.setOnClickListener {
             val generatedId: String = database.push().key!!
             database.child("Chats").child(id).child(generatedId)
-                .setValue(Message(Firebase.auth.uid!!, message.editableText.toString(), System.currentTimeMillis()))
+                .setValue(Message(preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis()))
             message.editableText.clear()
         }
     }

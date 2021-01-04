@@ -9,14 +9,14 @@ import com.example.demoappforfirebase.Adapter.ChatsAdapter
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
-import com.google.firebase.auth.ktx.auth
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_chat_list.*
 
 class ChatListFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
+    private lateinit var preferencesHelper: PreferencesHelper
     private var chatId = ""
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layoutInflater.inflate(R.layout.fragment_chat_list, container, false)
@@ -26,6 +26,7 @@ class ChatListFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         fragmentHelper = FragmentHelper(requireActivity())
         database = FirebaseDatabase.getInstance().reference
+        preferencesHelper = PreferencesHelper(requireContext())
         val databaseListener = object : ValueEventListener {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -34,9 +35,9 @@ class ChatListFragment : Fragment() {
                     for (postSnapshot in dataSnapshot.children) {
                         if (postSnapshot.key == "Chats") {
                             for (snapShot in postSnapshot.children) {
-                                if (Firebase.auth.uid?.let { snapShot.key?.contains(it) }!!) {
+                                if (preferencesHelper.getUserId().let { snapShot.key?.contains(it) }!!) {
                                     chatId = snapShot.key.toString()
-                                    chatId = chatId.replace(Firebase.auth.uid!!, "")
+                                    chatId = chatId.replace(preferencesHelper.getUserId(), "")
                                     chattingUsersId.add(chatId)
                                 }
                             }

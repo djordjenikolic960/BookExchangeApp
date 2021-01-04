@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demoappforfirebase.R
-import com.google.firebase.auth.ktx.auth
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 
 class UsersAdapter(private val dataSet: ArrayList<String>) :
     RecyclerView.Adapter<UsersAdapter.UserHolder>() {
@@ -27,13 +26,12 @@ class UsersAdapter(private val dataSet: ArrayList<String>) :
         holder.userId.text = current
         holder.userId.setOnClickListener {
             val database =  FirebaseDatabase.getInstance().reference
-            val auth = Firebase.auth
             val userQuery: Query =
                database.child("simpleChat").child("users")
             userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (child in snapshot.children) {
-                        val senderId = auth.currentUser!!.uid
+                        val senderId = PreferencesHelper(holder.itemView.context).getUserId()
                         database.child("messages").child(
                             if (current > senderId) {
                                 current + senderId

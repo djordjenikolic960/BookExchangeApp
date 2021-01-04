@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -41,6 +42,7 @@ class SignInFragment : Fragment() {
                         password.text.toString()
                     ).addOnCompleteListener {
                         if (it.isSuccessful) {
+                            PreferencesHelper(requireContext()).setUserId(auth.currentUser!!.uid)
                             startActivity(Intent(requireContext(), MainActivity::class.java))
                             activity?.finish()
                         }

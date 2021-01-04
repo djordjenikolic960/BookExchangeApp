@@ -12,9 +12,7 @@ import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_book_more_details.*
 import kotlinx.android.synthetic.main.fragment_book_more_details.bookAuthor
 import kotlinx.android.synthetic.main.fragment_book_more_details.bookImage
@@ -63,13 +61,7 @@ class BookMoreDetailsFragment : Fragment() {
         })
         btnContactUser.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString(
-                "chatId", if (Firebase.auth.uid!! > book.ownerId) {
-                    Firebase.auth.uid + book.ownerId
-                } else {
-                    book.ownerId + Firebase.auth.uid
-                }
-            )
+            bundle.putString("chatId", book.ownerId)
             fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
         }
     }

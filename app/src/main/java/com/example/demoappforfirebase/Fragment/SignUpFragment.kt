@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
@@ -51,6 +52,7 @@ class SignUpFragment : Fragment() {
                         if (it.isSuccessful) {
                             val user: FirebaseUser = auth.currentUser!!
                             addUserInDatabase(user)
+                            PreferencesHelper(requireContext()).setUserId(auth.currentUser!!.uid)
                             startActivity(Intent(requireContext(), MainActivity::class.java))
                             activity?.finish()
                         }
