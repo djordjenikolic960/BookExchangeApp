@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ///NE SPUSCAJ NA PROZORE LORETNE
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         StyleUtil.stylizeStatusBar(this@MainActivity, true)
