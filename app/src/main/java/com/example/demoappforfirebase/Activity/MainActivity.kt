@@ -25,6 +25,7 @@ import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Utils.FragmentHelper
+import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -45,6 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var usersRecycler: RecyclerView
     private lateinit var auth: FirebaseAuth
     private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var preferencesHelper: PreferencesHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,6 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fragmentHelper = FragmentHelper(this)
         fragmentHelper.replaceFragment(BookListFragment::class.java)
         bookVM = ViewModelProvider(this).get(BookViewModel::class.java)
+        preferencesHelper = PreferencesHelper(this)
         auth = Firebase.auth
     }
 
@@ -308,8 +311,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onStart() {
         super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
+        if(preferencesHelper.getUserId() == ""){
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
         }
