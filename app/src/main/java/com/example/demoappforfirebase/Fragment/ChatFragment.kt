@@ -68,9 +68,9 @@ class ChatFragment : Fragment() {
                             for (snapShot in postSnapshot.children) {
                                 val stringBuilder = StringBuilder()
                                 id = if (preferencesHelper.getUserId() > chatId) {
-                                    stringBuilder.append( preferencesHelper.getUserId()).append(chatId).toString()
+                                    stringBuilder.append(preferencesHelper.getUserId()).append(chatId).toString()
                                 } else {
-                                    stringBuilder.append(chatId).append( preferencesHelper.getUserId()).toString()
+                                    stringBuilder.append(chatId).append(preferencesHelper.getUserId()).toString()
                                 }
                                 if (snapShot.key == id) {
                                     for (message in snapShot.children) {
@@ -81,7 +81,6 @@ class ChatFragment : Fragment() {
                                 chatVM.messages.value = messages
                             }
                         }
-
                     }
                 }
             }

@@ -61,13 +61,7 @@ class BookMoreDetailsFragment : Fragment() {
         })
         btnContactUser.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString(
-                "chatId", if (preferencesHelper.getUserId() > book.ownerId) {
-                    preferencesHelper.getUserId() + book.ownerId
-                } else {
-                    book.ownerId + preferencesHelper.getUserId()
-                }
-            )
+            bundle.putString("chatId", book.ownerId)
             fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
         }
     }
