@@ -36,28 +36,6 @@ object ImageUtil {
     private lateinit var currentPhotoPath: String
     var pathForImage = ""
 
-    fun dispatchGalleryIntent(activity: MainActivity) {
-        val hasWriteExternalStoragePermission =
-            ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if (hasWriteExternalStoragePermission == PermissionChecker.PERMISSION_GRANTED) {
-            try {
-                val pickPhoto = Intent(
-                    Intent.ACTION_PICK,
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                )
-                pickPhoto.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                activity.startActivityForResult(pickPhoto, REQUEST_GALLERY_PHOTO)
-            } catch (e: ActivityNotFoundException) {
-                e.printStackTrace()
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_GALLERY_PHOTO
-            )
-        }
-    }
 
     fun dispatchTakePictureIntent(activity: MainActivity) {
         val hasCameraPermission =
@@ -110,21 +88,6 @@ object ImageUtil {
         return ""
     }
 
-    fun addImageFromGallery(context: Context, contentURI: String): String {
-        createImageFile(context)
-        val file = File(currentPhotoPath)
-        try {
-            copyFile(File(getPathFromURI(context, Uri.parse(contentURI))!!), file)
-            val bitmap: Bitmap =
-                decodeSampledBitmapFromFile(context, file.absolutePath, 1920f, 1080f)!!
-            storeImage(file, bitmap)
-            return file.absolutePath.substring(file.absolutePath.lastIndexOf("/") + 1)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return ""
-    }
-
     @Throws(IOException::class)
     private fun createImageFile(context: Context): File {
         // Create an image file name
@@ -139,17 +102,6 @@ object ImageUtil {
             // Save a file: path for use with ACTION_VIEW intents
             currentPhotoPath = absolutePath
         }
-    }
-
-    private fun copyFile(sourceFile: File, destFile: File) {
-        if (!sourceFile.exists()) return
-        val source: FileChannel? = FileInputStream(sourceFile).channel
-        val destination: FileChannel? = FileOutputStream(destFile).channel
-        if (destination != null && source != null) {
-            destination.transferFrom(source, 0, source.size())
-        }
-        source?.close()
-        destination?.close()
     }
 
     private fun storeImage(file: File, bmp: Bitmap) {
@@ -295,7 +247,7 @@ object ImageUtil {
     }
 
 
-    fun getRealPathFromURI(context: Context, contentURI: String?): String? {
+    private fun getRealPathFromURI(context: Context, contentURI: String?): String? {
         val contentUri = Uri.parse(contentURI)
         val cursor = context.contentResolver.query(contentUri, null, null, null, null)
         return if (cursor == null) {
@@ -309,54 +261,6 @@ object ImageUtil {
         }
     }
 
-//    fun deletePictures(context: Context, pictureVM: PictureViewModel) {
-//        val deletedPictures: List<String> = pictureVM.deletedPictures.value!!
-//        if (deletedPictures.count() > 0) {
-//            for (i in deletedPictures.indices) {
-//                if (deletedPictures.isNotEmpty() && !deletedPictures[i].contains(AppDatabase.INITIAL_NOTE_PICTURE_NAME)) {
-//                    val file = File(getRealPathFromURI(context, deletedPictures[i])!!)
-//                    if (file.exists()) {
-//                        file.delete()
-//                    }
-//                }
-//                val picture =
-//                    pictureVM.findPictureByPath(
-//                        deletedPictures[i].substring(
-//                            deletedPictures[i].lastIndexOf(
-//                                "/"
-//                            ) + 1
-//                        )
-//                    )
-//                if (picture.isNotEmpty()) {
-//                    pictureVM.delete(picture[0])
-//                }
-//            }
-//        }
-//    }
-//
-//    fun deleteUnsavedPictures(context: Context, pictureVM: PictureViewModel) {
-//        val deletedPictures: List<String> = pictureVM.deletedPictures.value!!
-//        if (deletedPictures.count() > 0) {
-//            for (i in deletedPictures.indices) {
-//                if (deletedPictures.isNotEmpty() && !deletedPictures[i].contains(AppDatabase.INITIAL_NOTE_PICTURE_NAME)) {
-//                    val picture =
-//                        pictureVM.findPictureByPath(
-//                            deletedPictures[i].substring(
-//                                deletedPictures[i].lastIndexOf(
-//                                    "/"
-//                                ) + 1
-//                            )
-//                        )
-//                    if (picture.isEmpty()) {
-//                        val file = File(getRealPathFromURI(context, deletedPictures[i])!!)
-//                        if (file.exists()) {
-//                            file.delete()
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     fun addingPictureCanceled(context: Context) {
         if (::currentPhotoPath.isInitialized) {
@@ -365,51 +269,6 @@ object ImageUtil {
                 file.delete()
             }
         }
-    }
-
-    fun getPathFromURI(context: Context, uri: Uri): String? {
-        // DocumentProvider
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                val docId: String = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).toTypedArray()
-                val type = split[0]
-                if ("primary".equals(type, ignoreCase = true)) {
-                    return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
-                }
-            } else if (isDownloadsDocument(uri)) {
-                val id: String = DocumentsContract.getDocumentId(uri)
-                val contentUri: Uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(id))
-                return getDataColumn(context, contentUri, null, null)
-            } else if (isMediaDocument(uri)) {
-                val docId: String = DocumentsContract.getDocumentId(uri)
-                val split = docId.split(":".toRegex()).toTypedArray()
-                val type = split[0]
-                var contentUri: Uri? = null
-                when (type) {
-                    "image" -> {
-                        contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    }
-                    "video" -> {
-                        contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                    }
-                    "audio" -> {
-                        contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                    }
-                }
-                val selection = "_id=?"
-                val selectionArgs = arrayOf(
-                    split[1]
-                )
-                return getDataColumn(context, contentUri, selection, selectionArgs)
-            }
-        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
-            return getDataColumn(context, uri, null, null)
-        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
-            return uri.path
-        }
-        return null
     }
 
     private fun getDataColumn(
@@ -436,15 +295,4 @@ object ImageUtil {
         return null
     }
 
-    private fun isExternalStorageDocument(uri: Uri): Boolean {
-        return "com.android.externalstorage.documents" == uri.authority
-    }
-
-    private fun isDownloadsDocument(uri: Uri): Boolean {
-        return "com.android.providers.downloads.documents" == uri.authority
-    }
-
-    private fun isMediaDocument(uri: Uri): Boolean {
-        return "com.android.providers.media.documents" == uri.authority
-    }
 }

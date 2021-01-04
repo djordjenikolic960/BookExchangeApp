@@ -1,21 +1,25 @@
 package com.example.demoappforfirebase
 
 
-import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Base64
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.ascendik.diary.util.ImageUtil
+import com.ascendik.diary.util.ImageUtil.REQUEST_GALLERY_PHOTO
+import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
 import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
@@ -40,10 +44,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var usersRecycler: RecyclerView
     private lateinit var auth: FirebaseAuth
     private lateinit var toggle: ActionBarDrawerToggle
-
-    companion object {
-        const val REQUEST_IMAGE_CAPTURE = 111
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -208,34 +208,61 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             super.onBackPressed()
         }
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_IMAGE_CAPTURE -> {
-                val extras: Bundle = data?.extras!!
-                val imageBitmap = extras["data"] as Bitmap?
-                if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
-                    bookImage.setImageBitmap(imageBitmap)
-                }
-                bookVM.imageUrl.value = imageBitmap?.let { encodeBitmap(it) }
-            }
-            ImageUtil.REQUEST_TAKE_PHOTO -> {
-                if (resultCode == RESULT_OK) {
-                    bookVM.imageUrl.value = ImageUtil.addImageFromCamera(this)
-                } else if (resultCode == RESULT_CANCELED) {
-                    ImageUtil.addingPictureCanceled(this)
+            REQUEST_TAKE_PHOTO -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    ImageUtil.dispatchTakePictureIntent(this)
+                } else {
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT ).show()
                 }
             }
-            ImageUtil.REQUEST_GALLERY_PHOTO -> {
-                if (resultCode == RESULT_OK) {
-                    bookVM.imageUrl.value = ImageUtil.addImageFromGallery(this, data?.data.toString())
+            REQUEST_GALLERY_PHOTO -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    val getIntent = Intent(Intent.ACTION_GET_CONTENT)
+                    getIntent.type = "image/*"
+                    val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    pickIntent.type = "image/*"
+                    val chooserIntent = Intent.createChooser(getIntent, "Select Image")
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
+                    startActivityForResult(chooserIntent, REQUEST_GALLERY_PHOTO)
+                } else {
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT ).show()
                 }
             }
         }
     }
 
-    fun encodeBitmap(bitmap: Bitmap): String {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            REQUEST_TAKE_PHOTO -> {
+                if (resultCode == RESULT_OK) {
+                    bookVM.imageUrl.value = ImageUtil.addImageFromCamera(this)
+                    val bmOptions = BitmapFactory.Options()
+                    val bitmap = BitmapFactory.decodeFile(ImageUtil.pathForImage, bmOptions)
+                    if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
+                        bookImage.setImageBitmap(bitmap)
+                    }
+                    bookVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
+                } else if (resultCode == RESULT_CANCELED) {
+                    ImageUtil.addingPictureCanceled(this)
+                }
+            }
+            else -> {
+                if (resultCode == RESULT_OK && data != null) {
+                    val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data.data)
+                    if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
+                        bookImage.setImageBitmap(bitmap)
+                    }
+                    bookVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
+                }
+            }
+        }
+    }
+
+    private fun encodeBitmap(bitmap: Bitmap): String {
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
