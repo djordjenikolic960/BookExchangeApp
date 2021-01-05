@@ -1,18 +1,26 @@
 package com.example.demoappforfirebase
 
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PorterDuff
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.DisplayMetrics
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import android.view.WindowManager
+import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,6 +36,9 @@ import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -282,6 +293,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setItemOpenChat(menu)
         setItemLogOut(menu)
+        setItemSort(menu)
+        setActionSearch(menu)
+        toolbar.setOnClickListener {
+            if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
+                menu?.findItem(R.id.action_search)?.expandActionView()
+            }
+        }
 
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
             drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -289,6 +307,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    private fun setActionSearch(menu: Menu?) {
+        val actionSearch = menu?.findItem(R.id.action_search)
+        actionSearch?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                invalidateOptionsMenu()
+                return true
+            }
+
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                menu.findItem(R.id.action_sort).isVisible = false
+                return true
+            }
+        })
+
+        val searchView = actionSearch?.actionView as SearchView
+        searchView.queryHint = "Search"
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String): Boolean {
+
+                bookVM.updateBooksByAuthorAndTitle(newText)
+                return true
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                bookVM.updateBooksByAuthorAndTitle(query)
+                searchView.clearFocus()
+                return true
+            }
+        })
+    }
+
+    private fun setItemSort(menu: Menu?) {
+        //todo implement
     }
 
     private fun setItemLogOut(menu: Menu?) {
@@ -312,7 +365,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             true
         }
     }
-
 
     public override fun onStart() {
         super.onStart()
