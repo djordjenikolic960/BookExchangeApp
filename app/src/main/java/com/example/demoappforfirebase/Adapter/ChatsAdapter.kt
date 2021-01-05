@@ -19,7 +19,7 @@ class ChatsAdapter (private val dataSet: ArrayList<User>) :
     private lateinit var fragmentHelper: FragmentHelper
 
     class UserHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //todo ubaciti sliku korisnika pa ako je ima onda je prikazati ako ne neka ostane ovako drawable
+        //todo ubaciti sliku korisnika pa ako je ima onda je prikazati ako ne neka ostane ovako drawable ili prvo slovo imena
         val userImage: ImageView = itemView.findViewById(R.id.userImage)
         val userName: TextView = itemView.findViewById(R.id.userName)
         //todo ovo mozda ne mora, takodje ubaciti pre koliko je bila poslednja poruka
@@ -48,6 +48,7 @@ class ChatsAdapter (private val dataSet: ArrayList<User>) :
     private fun showChatFragment(user: User) {
         val bundle = Bundle()
         bundle.putString("chatId", user.id)
+        bundle.putBoolean("fromChatListFragment", true)
         fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
     }
 }

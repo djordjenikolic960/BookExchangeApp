@@ -13,13 +13,17 @@ import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat_list.*
 
-class ChatListFragment : Fragment() {
+class ChatListFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
     private var chatId = ""
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layoutInflater.inflate(R.layout.fragment_chat_list, container, false)
+    }
+
+    override fun onBackPressed() {
+      fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

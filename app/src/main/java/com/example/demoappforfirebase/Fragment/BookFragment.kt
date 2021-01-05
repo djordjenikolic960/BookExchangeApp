@@ -8,7 +8,6 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.ascendik.diary.util.ImageUtil
 import com.ascendik.diary.util.ImageUtil.REQUEST_GALLERY_PHOTO
@@ -23,7 +22,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_book.*
 
-class BookFragment : Fragment() {
+class BookFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
@@ -34,7 +33,10 @@ class BookFragment : Fragment() {
         val view = layoutInflater.inflate(R.layout.fragment_book, container, false)
         packageManager = (requireActivity() as MainActivity).packageManager
         return view
+    }
 
+    override fun onBackPressed() {
+        fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
