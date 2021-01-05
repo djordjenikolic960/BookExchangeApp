@@ -193,29 +193,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onBackPressed() {
-        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
-            drawer_layout.closeDrawer(GravityCompat.START)
-        } else if (!fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-            when {
-                fragmentHelper.isFragmentVisible(BookFragment::class.java) -> {
-                    fragmentHelper.replaceFragment(BookListFragment::class.java)
-                }
-                fragmentHelper.isFragmentVisible(BookMoreDetailsFragment::class.java) -> {
-                    fragmentHelper.replaceFragment(BookListFragment::class.java)
-                }
-                fragmentHelper.isFragmentVisible(ChatFragment::class.java) -> {
-                    fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java)
-                }
-
-                fragmentHelper.isFragmentVisible(ChatListFragment::class.java) -> {
-                    fragmentHelper.replaceFragment(BookListFragment::class.java)
-                }
-            }
-        } else {
-            super.onBackPressed()
-        }
-    }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {

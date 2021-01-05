@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.fragment_book_more_details.bookName
 import kotlinx.android.synthetic.main.fragment_book_more_details.bookDescription
 import java.io.IOException
 
-class BookMoreDetailsFragment : Fragment() {
+class BookMoreDetailsFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
@@ -33,6 +33,10 @@ class BookMoreDetailsFragment : Fragment() {
             bookId = args.getString("bookId", "")
         }
         return rootView
+    }
+
+    override fun onBackPressed() {
+        fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -62,6 +66,7 @@ class BookMoreDetailsFragment : Fragment() {
         btnContactUser.setOnClickListener {
             val bundle = Bundle()
             bundle.putString("chatId", book.ownerId)
+            bundle.putBoolean("fromChatListFragment", false)
             fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
         }
     }

@@ -8,37 +8,50 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat.*
 import java.lang.StringBuilder
 
-class ChatFragment : Fragment() {
+class ChatFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var chatVM: ChatViewModel
     private var chatId: String = ""
     private var id = ""
+    private var isFromChatListFragment = false
     private lateinit var bookVM: BookViewModel
     private lateinit var preferencesHelper: PreferencesHelper
+    private lateinit var fragmentHelper: FragmentHelper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_chat, container, false)
         val args = arguments
         if (args != null) {
             chatId = args.getString("chatId", "")
+            isFromChatListFragment = args.getBoolean("fromChatListFragment", false)
         }
         return rootView
+    }
+
+    override fun onBackPressed() {
+        if (isFromChatListFragment) {
+            fragmentHelper.replaceFragment(ChatListFragment::class.java)
+        } else {
+            fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java)
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
         preferencesHelper = PreferencesHelper(requireContext())
+        fragmentHelper = FragmentHelper(requireActivity())
         chatVM.messages.observe(viewLifecycleOwner, {
             chat.removeAllViews()
             for (message in it) {
@@ -47,14 +60,28 @@ class ChatFragment : Fragment() {
                 val textView = TextView(requireContext())
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 if (message.author == preferencesHelper.getUserId()) {
-                    params.gravity = Gravity.END
+                    cardParams.gravity = Gravity.END
+                    cardView.setCardBackgroundColor(resources.getColor(R.color.peachOrangeDark))
+
                 } else {
-                    params.gravity = Gravity.START
+                    cardView.setCardBackgroundColor(resources.getColor(R.color.white))
+                    cardParams.gravity = Gravity.START
                 }
-                textView.textSize = 25f
+                cardParams.setMargins(4, 4, 4, 4)
+                cardView.layoutParams = cardParams
+                cardView.radius = 50f
+                textView.textSize = 18f
+                textView.setTextColor(resources.getColor(R.color.white))
+                params.setMargins(
+                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
+                    resources.getDimension(R.dimen.message_vertical_margin).toInt(),
+                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
+                    resources.getDimension(R.dimen.message_vertical_margin).toInt()
+                )
                 textView.layoutParams = params
                 textView.text = message.message
-                chat.addView(textView)
+                cardView.addView(textView)
+                chat.addView(cardView)
             }
         })
         database = FirebaseDatabase.getInstance().reference
@@ -95,6 +122,9 @@ class ChatFragment : Fragment() {
             database.child("Chats").child(id).child(generatedId)
                 .setValue(Message(preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis()))
             message.editableText.clear()
+        }
+        message.setOnFocusChangeListener { _, hasFocus ->
+            StyleUtil.stylizeStatusBar(requireActivity(), !hasFocus)
         }
     }
 }

@@ -14,7 +14,7 @@ import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_book_list.*
 
-class BookListFragment : Fragment() {
+class BookListFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var bookRecycler: RecyclerView
     private lateinit var fragmentHelper: FragmentHelper
