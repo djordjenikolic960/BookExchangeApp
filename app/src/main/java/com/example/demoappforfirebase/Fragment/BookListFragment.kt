@@ -30,7 +30,6 @@ class BookListFragment : BaseFragment() {
         bookRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
 
         val databaseListener = object : ValueEventListener {
-
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     val books = arrayListOf<Book>()
