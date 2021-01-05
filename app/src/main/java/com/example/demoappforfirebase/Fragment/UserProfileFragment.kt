@@ -14,6 +14,7 @@ import com.example.demoappforfirebase.Model.*
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_user_profile.*
 import java.lang.StringBuilder
@@ -49,7 +50,11 @@ class UserProfileFragment : BaseFragment() {
                 profileName.text = userName
             }
 
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                val params = Bundle()
+                params.putString("error", error.toString())
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+            }
         })
 
 
@@ -67,8 +72,11 @@ class UserProfileFragment : BaseFragment() {
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {}
-
+            override fun onCancelled(error: DatabaseError) {
+                val params = Bundle()
+                params.putString("error", error.toString())
+                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+            }
         })
 
         profileImage.setOnClickListener {

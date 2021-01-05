@@ -1,9 +1,6 @@
 package com.example.demoappforfirebase.Adapter
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +17,7 @@ import java.io.IOException
 import kotlin.collections.ArrayList
 
 
-class BooksAdapter(private val dataSet: ArrayList<Book>) :
+class BooksAdapter(private var dataSet: ArrayList<Book>) :
     RecyclerView.Adapter<BooksAdapter.BookHolder>() {
     private lateinit var fragmentHelper: FragmentHelper
     class BookHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -47,16 +44,20 @@ class BooksAdapter(private val dataSet: ArrayList<Book>) :
             e.printStackTrace()
         }
         holder.itemView.setOnClickListener {
-            showNoteFragment(current)
+            showBookDetailsFragment(current)
         }
+    }
 
+    fun updateDataSet(newDataSet :ArrayList<Book>){
+        dataSet = newDataSet
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
         return dataSet.size
     }
 
-    private fun showNoteFragment(book: Book) {
+    private fun showBookDetailsFragment(book: Book) {
         val bundle = Bundle()
         bundle.putString("bookId", book.bookId)
         fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java, bundle)

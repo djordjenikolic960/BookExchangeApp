@@ -8,7 +8,24 @@
         android:orderInCategory="1"
         android:title="Chats"
         app:iconTint="@color/white"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:orderInCategory="1"
+        android:title="Sort"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        android:visible="false"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="collapseActionView"  />
 
     <item
         android:id="@+id/action_log_out"

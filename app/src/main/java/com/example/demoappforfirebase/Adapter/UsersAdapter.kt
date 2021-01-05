@@ -1,5 +1,6 @@
 package com.example.demoappforfirebase.Adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,10 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.*
 
 class UsersAdapter(private val dataSet: ArrayList<String>) :
     RecyclerView.Adapter<UsersAdapter.UserHolder>() {
+    val FIREBASE_ANALYTICS = "database_error"
     class UserHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val userId: TextView = itemView.findViewById(R.id.userId)
     }
@@ -43,9 +46,10 @@ class UsersAdapter(private val dataSet: ArrayList<String>) :
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    val params = Bundle()
+                    params.putString("error", error.toString())
+                    FirebaseAnalytics.getInstance(holder.itemView.context).logEvent(FIREBASE_ANALYTICS, params)
                 }
-
             })
         }
     }
