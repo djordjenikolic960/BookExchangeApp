@@ -222,6 +222,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             REQUEST_TAKE_PHOTO -> {
+
                 if (resultCode == RESULT_OK) {
                     bookVM.imageUrl = ImageUtil.addImageFromCamera(this)
                     val bmOptions = BitmapFactory.Options()
