@@ -73,7 +73,8 @@ class SignUpFragment : Fragment() {
                     firstName.text.toString(),
                     lastName.text.toString(),
                     email.text.toString(),
-                    password.text.toString()
+                    password.text.toString(),
+                    ""
                 )
             )
     }

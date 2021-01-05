@@ -24,7 +24,6 @@ import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
 import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
-import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
