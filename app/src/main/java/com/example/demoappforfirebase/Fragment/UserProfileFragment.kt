@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.ascendik.diary.util.ImageUtil
+import com.example.demoappforfirebase.Adapter.BooksAdapter
 import com.example.demoappforfirebase.MainActivity
-import com.example.demoappforfirebase.Model.User
+import com.example.demoappforfirebase.Model.*
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
@@ -18,7 +21,8 @@ import java.lang.StringBuilder
 class UserProfileFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
-    private lateinit var user:User
+    private lateinit var userViewModel: UserViewModel
+    private lateinit var user: User
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
@@ -32,29 +36,57 @@ class UserProfileFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
         val userQuery = database.child("Users").child(preferencesHelper.getUserId())
-        userQuery.addListenerForSingleValueEvent(object :ValueEventListener{
+        userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 user = snapshot.getValue(User::class.java)!!
-
-
-                if(user.picture.isNotEmpty()){
+                userViewModel.imageUrl.value = user.picture
+                if (user.picture.isNotEmpty()) {
                     profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(user.picture))
+                } else {
+                    profileImage.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_profile, requireContext().theme))
                 }
                 val userName = StringBuilder().append(user.name).append(" ").append(user.surname).toString()
                 profileName.text = userName
             }
 
-            override fun onCancelled(error: DatabaseError) { }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+
+        val booksQuery = database.child("Books").orderByChild("ownerId").equalTo(preferencesHelper.getUserId())
+        booksQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val books = arrayListOf<Book>()
+                    for (postSnapshot in snapshot.children) {
+                        val book: Book = postSnapshot.getValue(Book::class.java)!!
+                        books.add(book)
+                    }
+                    val adapter = BooksAdapter(books)
+                    userBooksRecycler.adapter = adapter
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
 
         })
 
         profileImage.setOnClickListener {
             ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
+
+        userViewModel.imageUrl.observe(viewLifecycleOwner,
+            {
+                if (it.isNotEmpty() && it != user.picture) {
+                    database.child("Users").child(preferencesHelper.getUserId()).child("picture").setValue(it)
+                    profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(it))
+                }
+            })
     }
 
     private fun setHelpers() {
-        database =  FirebaseDatabase.getInstance().reference
+        database = FirebaseDatabase.getInstance().reference
         preferencesHelper = PreferencesHelper(requireContext())
+        userViewModel = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
     }
 }

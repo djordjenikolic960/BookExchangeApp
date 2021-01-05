@@ -9,13 +9,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.*
-import android.database.Cursor
 import android.graphics.*
 import android.media.ExifInterface
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
-import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Base64
 import androidx.core.app.ActivityCompat
@@ -24,10 +21,8 @@ import androidx.core.content.FileProvider
 import androidx.core.content.PermissionChecker
 import com.example.demoappforfirebase.MainActivity
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -41,7 +36,7 @@ object ImageUtil {
     fun onLaunchCamera(activity: MainActivity) {
         val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
 
-        val  builder =  AlertDialog.Builder(activity.baseContext)
+        val builder = AlertDialog.Builder(activity)
         builder.setTitle("Choose picture")
 
         builder.setItems(options) { dialog, which ->
@@ -62,8 +57,8 @@ object ImageUtil {
                     dialog!!.dismiss()
                 }
             }
-        };
-        builder.show();
+        }
+        builder.show()
     }
 
     @Throws(IOException::class)
@@ -72,6 +67,7 @@ object ImageUtil {
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.size)
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     fun dispatchTakePictureIntent(activity: MainActivity) {
         val hasCameraPermission =
             ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
@@ -305,29 +301,4 @@ object ImageUtil {
             }
         }
     }
-
-    private fun getDataColumn(
-        context: Context, uri: Uri?, selection: String?,
-        selectionArgs: Array<String>?
-    ): String? {
-        var cursor: Cursor? = null
-        val column = "_data"
-        val projection = arrayOf(
-            column
-        )
-        try {
-            cursor = context.contentResolver.query(
-                uri!!, projection, selection, selectionArgs,
-                null
-            )
-            if (cursor != null && cursor.moveToFirst()) {
-                val columnIndex: Int = cursor.getColumnIndexOrThrow(column)
-                return cursor.getString(columnIndex)
-            }
-        } finally {
-            cursor?.close()
-        }
-        return null
-    }
-
 }
