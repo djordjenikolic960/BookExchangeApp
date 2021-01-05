@@ -9,18 +9,23 @@ import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_user_profile.*
 import java.lang.StringBuilder
 
-class UserProfileFragment : Fragment() {
+class UserProfileFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var user:User
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
+    }
+
+    override fun onBackPressed() {
+        FragmentHelper(requireActivity()).replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
