@@ -26,7 +26,6 @@ class UserProfileFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
-
         val userQuery = database.child("Users").child(preferencesHelper.getUserId())
         userQuery.addListenerForSingleValueEvent(object :ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
