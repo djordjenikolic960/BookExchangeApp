@@ -8,5 +8,13 @@
         android:orderInCategory="1"
         android:title="Chats"
         app:iconTint="@color/white"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_log_out"
+        android:icon="@drawable/ic_log_out"
+        android:orderInCategory="1"
+        android:title="Logout"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom" />
 </menu>

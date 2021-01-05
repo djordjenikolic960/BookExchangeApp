@@ -280,13 +280,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         bottomAppBar.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        val actionOpenChats = menu?.findItem(R.id.action_chat)
-        actionOpenChats?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
-
-        actionOpenChats?.setOnMenuItemClickListener {
-            fragmentHelper.replaceFragment(ChatListFragment::class.java)
-           true
-        }
+        setItemOpenChat(menu)
+        setItemLogOut(menu)
 
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
             drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -295,6 +290,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         return super.onCreateOptionsMenu(menu)
     }
+
+    private fun setItemLogOut(menu: Menu?) {
+        val actionLogOut = menu?.findItem(R.id.action_log_out)
+        actionLogOut?.isVisible = fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)
+
+        actionLogOut?.setOnMenuItemClickListener {
+            preferencesHelper.setUserId("")
+            startActivity(Intent(this, SignUpActivity::class.java))
+            finish()
+            true
+        }
+    }
+
+    private fun setItemOpenChat(menu: Menu?) {
+        val actionOpenChats = menu?.findItem(R.id.action_chat)
+        actionOpenChats?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
+
+        actionOpenChats?.setOnMenuItemClickListener {
+            fragmentHelper.replaceFragment(ChatListFragment::class.java)
+            true
+        }
+    }
+
 
     public override fun onStart() {
         super.onStart()
