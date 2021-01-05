@@ -19,14 +19,13 @@ class UserProfileFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var user:User
-    private lateinit var fragmentHelper: FragmentHelper
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
     override fun onBackPressed() {
-        fragmentHelper.replaceFragment(BookListFragment::class.java)
+        FragmentHelper(requireActivity()).replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -57,6 +56,5 @@ class UserProfileFragment : BaseFragment() {
     private fun setHelpers() {
         database =  FirebaseDatabase.getInstance().reference
         preferencesHelper = PreferencesHelper(requireContext())
-        fragmentHelper = FragmentHelper(requireActivity())
     }
 }
