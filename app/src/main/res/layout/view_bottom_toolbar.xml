@@ -4,7 +4,7 @@
     android:id="@+id/bottomToolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/sign_in_background_gradient"
+    android:background="@drawable/bf_profile_info"
     android:orientation="horizontal"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
@@ -26,7 +26,7 @@
         app:tint="@color/white" />
 
     <ImageView
-        android:id="@+id/toolbarItemProfil"
+        android:id="@+id/toolbarItemProfile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.3"

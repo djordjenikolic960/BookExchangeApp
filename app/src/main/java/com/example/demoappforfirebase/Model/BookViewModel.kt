@@ -5,5 +5,5 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 
 class BookViewModel(application: Application) : AndroidViewModel(application) {
-    var imageUrl = MutableLiveData<String>()
+    var imageUrl:String? = null
 }

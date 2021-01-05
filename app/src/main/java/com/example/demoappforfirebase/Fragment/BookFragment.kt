@@ -44,7 +44,7 @@ class BookFragment : Fragment() {
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference
         bookImage.setOnClickListener {
-            onLaunchCamera()
+            ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
         btnWrite.setOnClickListener {
             val generatedId: String = database.push().key!!
@@ -55,42 +55,14 @@ class BookFragment : Fragment() {
                         preferencesHelper.getUserId(),
                         bookName.editableText.toString(),
                         bookAuthor.editableText.toString(),
-                        bookVM.imageUrl.value ?: "",
+                        bookVM.imageUrl ?: "",
                         bookDescription.editableText.toString(),
                         arrayListOf(Categories.CLASSICS.ordinal, Categories.FANTASY.ordinal)
                     )
                 )
             preferencesHelper.setIndex(preferencesHelper.getIndex() + 1)
             fragmentHelper.replaceFragment(BookListFragment::class.java)
-            bookVM.imageUrl.value = ""
+            bookVM.imageUrl = ""
         }
-    }
-
-    private fun onLaunchCamera() {
-        val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
-
-        val  builder =  AlertDialog.Builder(context)
-        builder.setTitle("Choose your profile picture")
-
-        builder.setItems(options) { dialog, which ->
-            when {
-                options[which] == "Take Photo" -> {
-                    ImageUtil.dispatchTakePictureIntent(requireActivity() as MainActivity)
-                }
-                options[which] == "Choose from Gallery" -> {
-                    val getIntent = Intent(Intent.ACTION_GET_CONTENT)
-                    getIntent.type = "image/*"
-                    val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    pickIntent.type = "image/*"
-                    val chooserIntent = Intent.createChooser(getIntent, "Select Image")
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
-                    startActivityForResult(chooserIntent, REQUEST_GALLERY_PHOTO)
-                }
-                options[which] == "Cancel" -> {
-                    dialog!!.dismiss()
-                }
-            }
-        };
-        builder.show();
     }
 }

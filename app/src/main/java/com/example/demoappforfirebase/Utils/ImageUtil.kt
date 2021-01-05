@@ -7,6 +7,7 @@ package com.ascendik.diary.util
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.*
 import android.database.Cursor
 import android.graphics.*
@@ -16,6 +17,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.util.Base64
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -36,6 +38,39 @@ object ImageUtil {
     private lateinit var currentPhotoPath: String
     var pathForImage = ""
 
+    fun onLaunchCamera(activity: MainActivity) {
+        val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
+
+        val  builder =  AlertDialog.Builder(activity.baseContext)
+        builder.setTitle("Choose picture")
+
+        builder.setItems(options) { dialog, which ->
+            when {
+                options[which] == "Take Photo" -> {
+                    dispatchTakePictureIntent(activity)
+                }
+                options[which] == "Choose from Gallery" -> {
+                    val getIntent = Intent(Intent.ACTION_GET_CONTENT)
+                    getIntent.type = "image/*"
+                    val pickIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    pickIntent.type = "image/*"
+                    val chooserIntent = Intent.createChooser(getIntent, "Select Image")
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
+                    activity.startActivityForResult(chooserIntent, REQUEST_GALLERY_PHOTO)
+                }
+                options[which] == "Cancel" -> {
+                    dialog!!.dismiss()
+                }
+            }
+        };
+        builder.show();
+    }
+
+    @Throws(IOException::class)
+    fun decodeFromFirebaseBase64(image: String?): Bitmap? {
+        val decodedByteArray = Base64.decode(image, Base64.DEFAULT)
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.size)
+    }
 
     fun dispatchTakePictureIntent(activity: MainActivity) {
         val hasCameraPermission =

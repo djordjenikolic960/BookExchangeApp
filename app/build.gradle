@@ -72,4 +72,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycleVersion"
     //FlexBox layout
     implementation 'com.google.android:flexbox:1.1.0'
+    //Circle Image View
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }

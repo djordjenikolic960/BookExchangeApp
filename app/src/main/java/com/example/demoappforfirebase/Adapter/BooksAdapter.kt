@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Fragment.BookMoreDetailsFragment
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.R
@@ -40,7 +41,7 @@ class BooksAdapter(private val dataSet: ArrayList<Book>) :
         holder.title.text = current.title
         holder.text.text = current.author
         try {
-            val image = decodeFromFirebaseBase64(current.image)
+            val image = ImageUtil.decodeFromFirebaseBase64(current.image)
             holder.image.setImageBitmap(image)
         } catch (e: IOException) {
             e.printStackTrace()
@@ -53,12 +54,6 @@ class BooksAdapter(private val dataSet: ArrayList<Book>) :
 
     override fun getItemCount(): Int {
         return dataSet.size
-    }
-
-    @Throws(IOException::class)
-    fun decodeFromFirebaseBase64(image: String?): Bitmap? {
-        val decodedByteArray = Base64.decode(image, Base64.DEFAULT)
-        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.size)
     }
 
     private fun showNoteFragment(book: Book) {

@@ -24,6 +24,7 @@ import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
 import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
+import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
@@ -34,6 +35,7 @@ import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_book.*
+import kotlinx.android.synthetic.main.fragment_user_profile.*
 import kotlinx.android.synthetic.main.view_bottom_toolbar.*
 import kotlinx.android.synthetic.main.view_content_main.*
 import java.io.ByteArrayOutputStream
@@ -55,7 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
         initHelpers()
         initDrawer()
-        setListeners()
+        setToolbarListeners()
         /*usersRecycler = findViewById(R.id.usersRecycler)
         usersRecycler.layoutManager = LinearLayoutManager(this)
         database = FirebaseDatabase.getInstance().reference
@@ -182,9 +184,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
     }
 
-    private fun setListeners() {
+    private fun setToolbarListeners() {
         toolbarItemAdd.setOnClickListener {
             fragmentHelper.replaceFragment(BookFragment::class.java)
+        }
+        toolbarItemProfile.setOnClickListener {
+            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
         }
     }
 
@@ -242,13 +247,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (requestCode) {
             REQUEST_TAKE_PHOTO -> {
                 if (resultCode == RESULT_OK) {
-                    bookVM.imageUrl.value = ImageUtil.addImageFromCamera(this)
+                    bookVM.imageUrl = ImageUtil.addImageFromCamera(this)
                     val bmOptions = BitmapFactory.Options()
                     val bitmap = BitmapFactory.decodeFile(ImageUtil.pathForImage, bmOptions)
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
+                        bookVM.imageUrl = bitmap?.let { encodeBitmap(it) }
+                    } else if(fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)){
+                        profileImage.setImageBitmap(bitmap)
                     }
-                    bookVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
+
                 } else if (resultCode == RESULT_CANCELED) {
                     ImageUtil.addingPictureCanceled(this)
                 }
@@ -259,7 +267,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
                     }
-                    bookVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
+                    bookVM.imageUrl = bitmap?.let { encodeBitmap(it) }
                 }
             }
         }
