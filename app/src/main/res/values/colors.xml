@@ -18,6 +18,7 @@
     <color name="black_54percent">#8A000000</color>
     <color name="black_70percent">#B2000000</color>
     <color name="black_87percent">#DE000000</color>
+    <color name="black_90percent">#1B1B1B</color>
     <color name="black">#000000</color>
     <color name="black_overlay">#66000000</color>
 
@@ -29,4 +30,16 @@
     <color name="white_54percent">#8AFFFFFF</color>
     <color name="white_70percent">#B2FFFFFF</color>
     <color name="white">#FFFFFF</color>
+
+    <!--Categories colors-->
+    <color name="categories1">#e7ffac</color>
+    <color name="categories2">#dfc7c1</color>
+    <color name="categories3">#feadb9</color>
+    <color name="categories4">#f4dcd6</color>
+    <color name="categories5">#ffccf9</color>
+    <color name="categories6">#bd85a3</color>
+    <color name="categories7">#b2d9ea</color>
+    <color name="categories8">#84b4c8</color>
+    <color name="categories9">#bc85a3</color>
+    <color name="categories10">#619196</color>
 </resources>

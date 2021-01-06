@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="categories_colors">
+        <item>@color/categories1</item>
+        <item>@color/categories2</item>
+        <item>@color/categories3</item>
+        <item>@color/categories4</item>
+        <item>@color/categories5</item>
+        <item>@color/categories6</item>
+        <item>@color/categories7</item>
+        <item>@color/categories8</item>
+        <item>@color/categories9</item>
+        <item>@color/categories10</item>
+    </integer-array>
+
+</resources>

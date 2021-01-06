@@ -1,23 +1,19 @@
 package com.example.demoappforfirebase.Fragment
 
-import android.app.AlertDialog
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.ascendik.diary.util.ImageUtil
-import com.ascendik.diary.util.ImageUtil.REQUEST_GALLERY_PHOTO
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.Model.BookViewModel
-import com.example.demoappforfirebase.Model.Categories
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_book.*
@@ -27,12 +23,9 @@ class BookFragment : BaseFragment() {
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var bookVM: BookViewModel
-    private lateinit var packageManager: PackageManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = layoutInflater.inflate(R.layout.fragment_book, container, false)
-        packageManager = (requireActivity() as MainActivity).packageManager
-        return view
+        return layoutInflater.inflate(R.layout.fragment_book, container, false)
     }
 
     override fun onBackPressed() {
@@ -45,9 +38,30 @@ class BookFragment : BaseFragment() {
         preferencesHelper = PreferencesHelper(requireContext())
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference
+        for (index in 0 until categoryTags.childCount) {
+            val child = categoryTags.getChildAt(index)
+            (child as TextView).text = requireContext().resources.getStringArray(R.array.categories)[index]
+            if (bookVM.categoriesSelected.contains(index)) {
+                child.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), true))
+            } else {
+                child.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), false))
+            }
+            child.setOnClickListener {
+                if (bookVM.categoriesSelected.contains(index)) {
+                    bookVM.categoriesSelected.remove(index)
+                    it.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), false))
+                    child.setTextColor(StyleUtil.getAttributeColor(requireContext(), android.R.attr.textColorPrimary))
+                } else {
+                    bookVM.categoriesSelected.add(index)
+                    it.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), true))
+                    child.setTextColor(StyleUtil.getAttributeColor(requireContext(), R.attr.colorSurface))
+                }
+            }
+        }
         bookImage.setOnClickListener {
             ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
+        btnWrite.setBackgroundDrawable(StyleUtil.getRoundedShapeDrawable(resources.getColor(R.color.peachOrangeDark), 20f))
         btnWrite.setOnClickListener {
             val generatedId: String = database.push().key!!
             database.child("Books").child(generatedId)
@@ -59,10 +73,11 @@ class BookFragment : BaseFragment() {
                         bookAuthor.editableText.toString(),
                         bookVM.imageUrl ?: "",
                         bookDescription.editableText.toString(),
-                        arrayListOf(Categories.CLASSICS.ordinal, Categories.FANTASY.ordinal)
+                        bookVM.categoriesSelected
                     )
                 )
             preferencesHelper.setIndex(preferencesHelper.getIndex() + 1)
+            bookVM.categoriesSelected = arrayListOf()
             fragmentHelper.replaceFragment(BookListFragment::class.java)
             bookVM.imageUrl = ""
         }

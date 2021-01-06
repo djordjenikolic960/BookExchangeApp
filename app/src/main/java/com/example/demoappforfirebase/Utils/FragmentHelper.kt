@@ -3,11 +3,18 @@ package com.example.demoappforfirebase.Utils
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.example.demoappforfirebase.Fragment.BookListFragment
 import com.example.demoappforfirebase.R
 import java.lang.ref.WeakReference
 
 class FragmentHelper(activity: FragmentActivity) {
     private var activity = WeakReference(activity)
+
+    fun initFragment(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) {
+            replaceFragment(BookListFragment::class.java)
+        }
+    }
 
     fun replaceFragment(fragmentClass: Class<out Fragment>) {
         replaceFragment(fragmentClass, null)

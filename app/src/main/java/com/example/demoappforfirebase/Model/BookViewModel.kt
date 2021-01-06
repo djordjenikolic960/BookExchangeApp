@@ -5,7 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 
 class BookViewModel(application: Application) : AndroidViewModel(application) {
-    var imageUrl:String? = null
+    var imageUrl: String? = null
+    var categoriesSelected = ArrayList<Int>()
     var oldBooks = ArrayList<Book>()
     var currentBooks = MutableLiveData<ArrayList<Book>>()
 
