@@ -27,6 +27,10 @@ class BookListFragment : BaseFragment() {
         return layoutInflater.inflate(R.layout.fragment_book_list, container, false)
     }
 
+    override fun onBackPressed() {
+      activity?.finish()
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHelpers()

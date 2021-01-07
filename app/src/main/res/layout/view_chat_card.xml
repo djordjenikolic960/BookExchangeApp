@@ -6,6 +6,7 @@
     android:layout_margin="2dp"
     app:cardCornerRadius="2dp"
     app:cardMaxElevation="2dp"
+    app:cardBackgroundColor="?android:attr/itemBackground"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 

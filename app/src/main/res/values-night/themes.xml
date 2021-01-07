@@ -4,5 +4,15 @@
     <style name="AppTheme" parent="BaseAppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/backgroundColor</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/backgroundColor</item>
+        <item name="colorSecondary">@color/peachOrangeLight</item>
+        <item name="colorBackgroundFloating">@color/black_90percent</item>
+        <item name="colorSurface">@color/black_90percent</item>
+        <item name="android:itemBackground">@color/black_90percent</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white_70percent</item>
+        <item name="colorControlHighlight">@color/black_25percent</item>
     </style>
 </resources>

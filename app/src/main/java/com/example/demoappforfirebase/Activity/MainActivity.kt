@@ -1,31 +1,24 @@
 package com.example.demoappforfirebase
 
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.PorterDuff
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
-import android.util.DisplayMetrics
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import com.ascendik.diary.util.ImageUtil
 import com.ascendik.diary.util.ImageUtil.REQUEST_GALLERY_PHOTO
 import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
@@ -36,9 +29,6 @@ import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -53,10 +43,8 @@ import java.io.ByteArrayOutputStream
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var bookVM: BookViewModel
-    private lateinit var usersRecycler: RecyclerView
     private lateinit var auth: FirebaseAuth
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var preferencesHelper: PreferencesHelper
@@ -70,6 +58,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         initHelpers()
         initDrawer()
         setToolbarListeners()
+        fragmentHelper.initFragment(savedInstanceState)
         /*usersRecycler = findViewById(R.id.usersRecycler)
         usersRecycler.layoutManager = LinearLayoutManager(this)
         database = FirebaseDatabase.getInstance().reference
@@ -178,7 +167,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun initHelpers() {
         fragmentHelper = FragmentHelper(this)
-        fragmentHelper.replaceFragment(BookListFragment::class.java)
         bookVM = ViewModelProvider(this).get(BookViewModel::class.java)
         userVM = ViewModelProvider(this).get(UserViewModel::class.java)
         preferencesHelper = PreferencesHelper(this)
@@ -213,7 +201,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     ImageUtil.dispatchTakePictureIntent(this)
                 } else {
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT ).show()
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
             REQUEST_GALLERY_PHOTO -> {
@@ -226,7 +214,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(pickIntent))
                     startActivityForResult(chooserIntent, REQUEST_GALLERY_PHOTO)
                 } else {
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT ).show()
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -243,7 +231,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
                         bookVM.imageUrl = bitmap?.let { encodeBitmap(it) }
-                    } else if(fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)){
+                    } else if (fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)) {
                         userVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
                     }
 
@@ -274,7 +262,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.isDrawerIndicatorEnabled =
             fragmentHelper.isFragmentVisible(BookListFragment::class.java)
         supportActionBar!!.subtitle = null
-
+        if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
+           fragment_container.setPadding(0,0,0,resources.getDimension(R.dimen.bottom_toolbar_height).toInt())
+        } else {
+            fragment_container.setPadding(0)
+        }
         when {
             fragmentHelper.isFragmentVisible(BookListFragment::class.java) -> {
                 supportActionBar!!.setDisplayHomeAsUpEnabled(false)
@@ -295,11 +287,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setItemLogOut(menu)
         setItemSort(menu)
         setActionSearch(menu)
-        toolbar.setOnClickListener {
-            if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-                menu?.findItem(R.id.action_search)?.expandActionView()
-            }
-        }
 
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
             drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -327,7 +314,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         searchView.queryHint = "Search"
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String): Boolean {
-
                 bookVM.updateBooksByAuthorAndTitle(newText)
                 return true
             }
@@ -338,10 +324,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return true
             }
         })
+        toolbarItemSearch.setOnClickListener {
+            actionSearch.expandActionView()
+        }
     }
 
     private fun setItemSort(menu: Menu?) {
-        //todo implement
+        val actionSort = menu?.findItem(R.id.action_sort)
+        actionSort?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
     }
 
     private fun setItemLogOut(menu: Menu?) {
@@ -368,7 +358,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     public override fun onStart() {
         super.onStart()
-        if(preferencesHelper.getUserId().isEmpty()){
+        if (preferencesHelper.getUserId().isEmpty()) {
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
         }

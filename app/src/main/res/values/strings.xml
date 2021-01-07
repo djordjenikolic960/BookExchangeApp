@@ -13,4 +13,17 @@
     <!--Drawer-->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string-array name="categories">
+        <item>Action and adventure</item>
+        <item>Classics</item>
+        <item>Fantasy</item>
+        <item>Horror</item>
+        <item>Mystery</item>
+        <item>Poetry</item>
+        <item>Romance</item>
+        <item>Science fiction</item>
+        <item>Romance</item>
+        <item>Thriller</item>
+    </string-array>
 </resources>

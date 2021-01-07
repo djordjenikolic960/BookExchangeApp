@@ -6,6 +6,7 @@
     android:layout_margin="2dp"
     app:cardCornerRadius="2dp"
     app:cardMaxElevation="2dp"
+    app:cardBackgroundColor="?android:attr/itemBackground"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
@@ -32,14 +33,14 @@
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
