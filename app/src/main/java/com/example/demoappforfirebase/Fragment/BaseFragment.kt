@@ -5,7 +5,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 
 open class BaseFragment : Fragment() {
-    val FIREBASE_ANALYTICS = "database_error"
     private var backPressedCallback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             onBackPressed()
