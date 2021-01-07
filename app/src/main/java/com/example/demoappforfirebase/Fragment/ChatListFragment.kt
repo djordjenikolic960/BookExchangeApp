@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import com.example.demoappforfirebase.Adapter.ChatsAdapter
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat_list.*
 
@@ -74,9 +74,7 @@ class ChatListFragment : BaseFragment() {
                             }
 
                             override fun onCancelled(databaseError: DatabaseError) {
-                                val params = Bundle()
-                                params.putString("error", databaseError.toString())
-                                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+                                AnalyticsUtil.logError(requireContext(), databaseError.toString())
                             }
                         }
 
@@ -86,9 +84,7 @@ class ChatListFragment : BaseFragment() {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                val params = Bundle()
-                params.putString("error", databaseError.toString())
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+                AnalyticsUtil.logError(requireContext(), databaseError.toString())
             }
         }
         database.addValueEventListener(databaseListener)

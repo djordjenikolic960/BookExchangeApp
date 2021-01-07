@@ -7,12 +7,11 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_book_more_details.*
 import kotlinx.android.synthetic.main.fragment_book_more_details.bookAuthor
@@ -58,13 +57,11 @@ class BookMoreDetailsFragment : BaseFragment() {
                 }
                 bookName.text = book.title
                 bookAuthor.text = book.author
-                bookDescription.text = book.description?:"Never mind"
+                bookDescription.text = book.description
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                val params = Bundle()
-                params.putString("error", databaseError.toString())
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+                AnalyticsUtil.logError(requireContext(), databaseError.toString())
             }
         })
         btnContactUser.setOnClickListener {

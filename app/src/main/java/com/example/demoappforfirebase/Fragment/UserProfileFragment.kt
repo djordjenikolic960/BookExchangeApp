@@ -1,20 +1,20 @@
 package com.example.demoappforfirebase.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Adapter.BooksAdapter
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.*
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_user_profile.*
 import java.lang.StringBuilder
@@ -51,12 +51,9 @@ class UserProfileFragment : BaseFragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                val params = Bundle()
-                params.putString("error", error.toString())
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+                AnalyticsUtil.logError(requireContext(), error.toString())
             }
         })
-
 
         val booksQuery = database.child("Books").orderByChild("ownerId").equalTo(preferencesHelper.getUserId())
         booksQuery.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -67,15 +64,28 @@ class UserProfileFragment : BaseFragment() {
                         val book: Book = postSnapshot.getValue(Book::class.java)!!
                         books.add(book)
                     }
+                    userBooksCount.text = books.size.toString()
                     val adapter = BooksAdapter(books)
                     userBooksRecycler.adapter = adapter
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                val params = Bundle()
-                params.putString("error", error.toString())
-                FirebaseAnalytics.getInstance(requireContext()).logEvent(FIREBASE_ANALYTICS, params)
+                AnalyticsUtil.logError(requireContext(), error.toString())
+            }
+        })
+
+        val userConnections = database.child("Chats")
+        userConnections.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val allChatsForUser = (snapshot.value as HashMap<String, String>).keys.filter { it.contains(preferencesHelper.getUserId()) }
+                    userConnectionsCount.text = allChatsForUser.size.toString()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                AnalyticsUtil.logError(requireContext(), error.toString())
             }
         })
 

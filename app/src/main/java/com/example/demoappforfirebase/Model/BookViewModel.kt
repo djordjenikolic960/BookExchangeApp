@@ -14,11 +14,17 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
         currentBooks.value = arrayListOf()
     }
 
-    fun getBooksByCategory(category :Int){
+    fun getBooksByCategory(category: Int) {
         currentBooks.value = oldBooks.filter { it.categories.contains(category) } as ArrayList<Book>
     }
 
-    fun updateBooksByAuthorAndTitle(query:String){
+    fun updateBooksByAuthorAndTitle(query: String) {
         currentBooks.value = oldBooks.filter { it.author.contains(query) || it.title.contains(query) } as ArrayList<Book>
+    }
+
+    fun addBook(book: Book) {
+        if (!oldBooks.contains(book)) {
+            oldBooks.add(book)
+        }
     }
 }
