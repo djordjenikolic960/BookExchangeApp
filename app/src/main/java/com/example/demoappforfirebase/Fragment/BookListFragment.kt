@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demoappforfirebase.Adapter.BooksAdapter
 import com.example.demoappforfirebase.MainActivity
@@ -37,7 +37,7 @@ class BookListFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
         bookRecycler = booksRecycler
-        bookRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
+        bookRecycler.layoutManager = LinearLayoutManager(requireContext())
 
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {

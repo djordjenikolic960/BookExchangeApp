@@ -6,9 +6,26 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
 
-    <color name="peachOrangeLight">#FFC391</color>
-    <color name="peachOrangeDark">#FFC492</color>
-    <color name="backgroundColor">#1B1E25</color>
+    <!--Light Theme-->
+    <color name="colorPrimaryNotebook">#F5EFE3</color>
+    <color name="colorPrimaryDarkNotebook">#E6D8BD</color>
+    <color name="colorPrimaryBrightNotebook">#FFFFFF</color>
+    <color name="colorSecondaryNotebook">#FFC391</color>
+    <color name="colorSecondaryDarkNotebook">#CD5B45</color>
+    <color name="colorGradientBottomPrimaryNotebook">#F5EFE3</color>
+    <color name="colorIntroBackgroundNotebook">#F9F5EC</color>
+    <color name="colorThumbNormalNotebook">#ECECEC</color>
+    <color name="proBgColorNotebook">#F5EFE3</color>
+    <color name="notebook_text_color_87percent">#DE232F34</color>
+    <color name="notebook_text_color_54percent">#8A232F34</color>
+
+    <!--Dark Theme-->
+    <color name="colorPrimaryMoon">#3E3A46</color>
+    <color name="colorPrimaryDarkMoon">#543C52</color>
+    <color name="colorPrimaryBrightMoon">#484353</color>
+    <color name="colorSecondaryMoon">#E9ADA3</color>
+    <color name="colorThumbNormalMoon">#9FA5A9</color>
+    <color name="proBgColorMoon">#514E66</color>
 
     <!--Black scale-->
     <color name="black_10percent">#1A000000</color>

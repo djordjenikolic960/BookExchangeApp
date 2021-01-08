@@ -14,7 +14,7 @@
             android:id="@+id/profileInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bf_profile_info"
+            android:background="?attr/toolbar_gradient"
             android:orientation="vertical">
 
             <LinearLayout
@@ -24,7 +24,7 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profileImage"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
@@ -60,7 +60,7 @@
                         android:id="@+id/userBooksCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="15" />
+                        android:text="0" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -79,7 +79,7 @@
                         android:id="@+id/userConnectionsCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="15" />
+                        android:text="0" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -88,6 +88,7 @@
                 </LinearLayout>
 
                 <Button
+                    android:id="@+id/btnContactUser"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"

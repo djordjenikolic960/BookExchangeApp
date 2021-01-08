@@ -4,36 +4,81 @@
     android:id="@+id/bottomToolbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bf_profile_info"
+    android:background="?attr/toolbar_gradient"
     android:orientation="horizontal"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
-    <ImageView
-        android:id="@+id/toolbarItemSearch"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="0.3"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_search"
-        app:tint="@color/white" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="2dp">
 
-    <ImageView
-        android:id="@+id/toolbarItemAdd"
+        <ImageView
+            android:id="@+id/toolbarItemSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_search"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="0.4"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_add"
-        app:tint="@color/white" />
 
-    <ImageView
-        android:id="@+id/toolbarItemProfile"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="2dp">
+
+        <ImageView
+            android:id="@+id/toolbarItemAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Book"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="0.3"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_profile"
-        app:tint="@color/white" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/toolbarItemProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_profile"
+            app:tint="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
 
 </LinearLayout>

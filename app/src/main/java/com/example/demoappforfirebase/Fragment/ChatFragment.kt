@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.R
@@ -24,27 +24,36 @@ import java.lang.StringBuilder
 class ChatFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var chatVM: ChatViewModel
-    private var chatId: String = ""
+    private var otherUserId: String = ""
     private var id = ""
-    private var isFromChatListFragment = false
-    private lateinit var bookVM: BookViewModel
+    private var bookIdIfFromBookMoreDetails = ""
+    private var openedFragmentFrom = ""
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var fragmentHelper: FragmentHelper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_chat, container, false)
         val args = arguments
         if (args != null) {
-            chatId = args.getString("chatId", "")
-            isFromChatListFragment = args.getBoolean("fromChatListFragment", false)
+            otherUserId = args.getString("chatId", "")
+            openedFragmentFrom = args.getString("openedFromFragment","")
+            bookIdIfFromBookMoreDetails = args.getString("bookId","")
         }
         return rootView
     }
 
     override fun onBackPressed() {
-        if (isFromChatListFragment) {
-            fragmentHelper.replaceFragment(ChatListFragment::class.java)
-        } else {
-            fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java)
+        when (openedFragmentFrom) {
+            ChatListFragment::class.simpleName -> fragmentHelper.replaceFragment(ChatListFragment::class.java)
+            BookMoreDetailsFragment::class.simpleName -> {
+                val bundle = Bundle()
+                bundle.putString("bookId", bookIdIfFromBookMoreDetails)
+                fragmentHelper.replaceFragment(BookMoreDetailsFragment::class.java, bundle)
+            }
+            else -> {
+                val bundle = Bundle()
+                bundle.putString("userId", otherUserId)
+                fragmentHelper.replaceFragment(UserProfileFragment::class.java, bundle)
+            }
         }
     }
 
@@ -62,17 +71,16 @@ class ChatFragment : BaseFragment() {
                 val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
                 if (message.author == preferencesHelper.getUserId()) {
                     cardParams.gravity = Gravity.END
-                    cardView.setCardBackgroundColor(resources.getColor(R.color.peachOrangeDark))
-
+                    cardView.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.my_message_color))
                 } else {
-                    cardView.setCardBackgroundColor(resources.getColor(R.color.white))
+                    cardView.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.other_message_color))
                     cardParams.gravity = Gravity.START
                 }
                 cardParams.setMargins(4, 4, 4, 4)
                 cardView.layoutParams = cardParams
                 cardView.radius = 50f
                 textView.textSize = 18f
-                textView.setTextColor(resources.getColor(R.color.white))
+                textView.setTextColor(ResourcesCompat.getColor(resources,R.color.white, requireContext().theme))
                 params.setMargins(
                     resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
                     resources.getDimension(R.dimen.message_vertical_margin).toInt(),
@@ -87,7 +95,6 @@ class ChatFragment : BaseFragment() {
         })
         database = FirebaseDatabase.getInstance().reference
         val databaseListener = object : ValueEventListener {
-
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     val messages = arrayListOf<Message>()
@@ -95,10 +102,10 @@ class ChatFragment : BaseFragment() {
                         if (postSnapshot.key == "Chats") {
                             for (snapShot in postSnapshot.children) {
                                 val stringBuilder = StringBuilder()
-                                id = if (preferencesHelper.getUserId() > chatId) {
-                                    stringBuilder.append(preferencesHelper.getUserId()).append(chatId).toString()
+                                id = if (preferencesHelper.getUserId() > otherUserId) {
+                                    stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
                                 } else {
-                                    stringBuilder.append(chatId).append(preferencesHelper.getUserId()).toString()
+                                    stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
                                 }
                                 if (snapShot.key == id) {
                                     for (message in snapShot.children) {

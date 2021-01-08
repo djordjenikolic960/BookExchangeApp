@@ -66,27 +66,27 @@ class BookMoreDetailsFragment : BaseFragment() {
             }
         })
 
-        bookVM.book.observe(viewLifecycleOwner, {
-            if (it != null) {
+        bookVM.book.observe(viewLifecycleOwner, { book ->
+            if (book != null) {
                 moreDetailsProgressBar.visibility = View.GONE
                 bookMoreDetailsParent.visibility = View.VISIBLE
+                if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
+                    contactUserButtons.visibility = View.VISIBLE
+                    btnSeeUserProfile.setOnClickListener {
+                        val bundle = Bundle()
+                        bundle.putString("userId", book.ownerId)
+                        fragmentHelper.replaceFragment(UserProfileFragment::class.java, bundle)
+                    }
+                    btnContactUser.setOnClickListener {
+                        val bundle = Bundle()
+                        bundle.putString("chatId", book.ownerId)
+                        bundle.putString("bookId", book.bookId)
+                        bundle.putString("openedFromFragment", BookMoreDetailsFragment::class.simpleName)
+                        fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
+                    }
+                }
             }
         })
-
-        if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
-            contactUserButtons.visibility = View.VISIBLE
-            btnSeeUserProfile.setOnClickListener {
-                val bundle = Bundle()
-                bundle.putString("userId", bookVM.book.value?.ownerId)
-                fragmentHelper.replaceFragment(UserProfileFragment::class.java, bundle)
-            }
-            btnContactUser.setOnClickListener {
-                val bundle = Bundle()
-                bundle.putString("chatId", bookVM.book.value?.ownerId)
-                bundle.putBoolean("fromChatListFragment", false)
-                fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
-            }
-        }
     }
 
     private fun setHelpers() {

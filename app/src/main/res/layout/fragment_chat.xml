@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor">
+    android:background="?attr/bg_home">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -21,18 +21,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:layout_gravity="bottom"
         android:padding="8dp"
-        android:background="@color/backgroundColor"
+        android:background="?attr/bg_home"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/message"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.8"
-            android:background="@drawable/rounded_corners_button"
+            android:background="?attr/toolbar_gradient"
             android:hint="Enter your text"
             android:textColor="@color/white"
             android:textSize="18sp" />
@@ -40,9 +40,9 @@
         <ImageView
             android:id="@+id/btnSend"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:src="@drawable/ic_send"
-            app:tint="@color/peachOrangeLight" />
+            app:tint="?attr/colorSecondary" />
     </LinearLayout>
 </FrameLayout>
