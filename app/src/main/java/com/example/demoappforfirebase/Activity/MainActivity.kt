@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         StyleUtil.stylizeStatusBar(this@MainActivity, true)
         setSupportActionBar(toolbar)
         initHelpers()
-        initDrawer()
         setToolbarListeners()
         fragmentHelper.initFragment(savedInstanceState)
         /*usersRecycler = findViewById(R.id.usersRecycler)
@@ -171,18 +170,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         userVM = ViewModelProvider(this).get(UserViewModel::class.java)
         preferencesHelper = PreferencesHelper(this)
         auth = Firebase.auth
-    }
-
-    private fun initDrawer() {
-        toggle = ActionBarDrawerToggle(
-            this, drawer_layout,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        )
-        drawer_layout.addDrawerListener(toggle)
-        toggle.syncState()
-        nav_view.itemIconTintList = null
-        nav_view.setNavigationItemSelectedListener(this)
     }
 
     private fun setToolbarListeners() {
