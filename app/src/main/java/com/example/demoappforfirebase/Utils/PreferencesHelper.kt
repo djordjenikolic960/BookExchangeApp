@@ -2,6 +2,7 @@ package com.example.demoappforfirebase.Utils
 
 import android.content.Context
 import android.preference.PreferenceManager
+import com.example.demoappforfirebase.MainActivity
 
 class PreferencesHelper(context: Context) {
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -22,5 +23,16 @@ class PreferencesHelper(context: Context) {
 
     fun getIndex(): Int {
         return preferences.getInt("index", 0)
+    }
+
+    ///////////////////////
+    // SORT \\
+    //////////////////////
+    fun setSortType(sortType: Int) {
+        preferences.edit().putInt("sort_type", sortType).apply()
+    }
+
+    fun getSortType(): Int {
+        return preferences.getInt("sort_type", MainActivity.SortType.NEWER_FIRST.ordinal)
     }
 }

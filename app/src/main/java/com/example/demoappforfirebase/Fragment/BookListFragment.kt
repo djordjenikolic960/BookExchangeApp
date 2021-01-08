@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demoappforfirebase.Adapter.BooksAdapter
+import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.R
@@ -29,7 +30,7 @@ class BookListFragment : BaseFragment() {
     }
 
     override fun onBackPressed() {
-      activity?.finish()
+        activity?.finish()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -69,6 +70,27 @@ class BookListFragment : BaseFragment() {
             } else {
                 Toast.makeText(requireContext(), "Still no books", Toast.LENGTH_SHORT).show()
             }
+        })
+
+        bookVM.sortType.observe(viewLifecycleOwner, {
+            val books = bookVM.oldBooks
+            books.sortWith { book1, book2 ->
+                when (it) {
+                    MainActivity.SortType.NEWER_FIRST.ordinal -> book2.timeStamp.compareTo(book1.timeStamp)
+                    MainActivity.SortType.OLDER_FIRST.ordinal -> book1.timeStamp.compareTo(book2.timeStamp)
+                    MainActivity.SortType.A_TO_Z.ordinal -> book1.title.compareTo(book2.title)
+                    else -> book2.title.compareTo(book1.title)
+                }
+            }
+            bookVM.currentBooks.value = books
+        })
+
+        bookVM.currentCategories.observe(viewLifecycleOwner, {
+            val allBooks = arrayListOf<Book>()
+            for (index in it) {
+                allBooks.addAll(bookVM.getBooksByCategory(index))
+            }
+            bookVM.currentBooks.value = allBooks
         })
 
         database.addValueEventListener(databaseListener)

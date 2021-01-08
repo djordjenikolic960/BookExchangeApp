@@ -102,9 +102,8 @@ object StyleUtil {
             drawable.setStroke(3, context.resources.getColor(optionsColor.getResourceId(position, -1)))
             drawable.setColor(getAttributeColor(context, android.R.attr.itemBackground))
         }
-        val rippleStateList = ColorStateList.valueOf(context.resources.getColor(optionsColor.getResourceId(position, -1)))
         optionsColor.recycle()
-        return RippleDrawable(rippleStateList, drawable, drawable)
+        return drawable
     }
 
     fun getRoundedShapeDrawable(color: Int, radius: Float): Drawable {
