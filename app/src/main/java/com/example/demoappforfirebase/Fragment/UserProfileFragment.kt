@@ -1,7 +1,6 @@
 package com.example.demoappforfirebase.Fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,11 +21,17 @@ import java.lang.StringBuilder
 class UserProfileFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
-    private lateinit var userViewModel: UserViewModel
+    private lateinit var userVM: UserViewModel
     private lateinit var user: User
+    private var currentProfileUserId: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_user_profile, container, false)
+        val rootView = inflater.inflate(R.layout.fragment_user_profile, container, false)
+        val args = arguments
+        if (args != null) {
+            currentProfileUserId = args.getString("userId", "")
+        }
+        return rootView
     }
 
     override fun onBackPressed() {
@@ -36,11 +41,30 @@ class UserProfileFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
-        val userQuery = database.child("Users").child(preferencesHelper.getUserId())
+        currentProfileUserId = currentProfileUserId ?: preferencesHelper.getUserId()
+        userVM.isMyProfile = currentProfileUserId.equals(preferencesHelper.getUserId())
+        setUserProfile()
+        if(currentProfileUserId.equals(preferencesHelper.getUserId())){
+            profileImage.setOnClickListener {
+                ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
+            }
+
+            userVM.imageUrl.observe(viewLifecycleOwner,
+                {
+                    if (it.isNotEmpty() && it != user.picture) {
+                        database.child("Users").child(preferencesHelper.getUserId()).child("picture").setValue(it)
+                        profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(it))
+                    }
+                })
+        }
+    }
+
+    private fun setUserProfile() {
+        val userQuery = database.child("Users").child(currentProfileUserId!!)
         userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 user = snapshot.getValue(User::class.java)!!
-                userViewModel.imageUrl.value = user.picture
+                userVM.imageUrl.value = user.picture
                 if (user.picture.isNotEmpty()) {
                     profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(user.picture))
                 } else {
@@ -55,7 +79,7 @@ class UserProfileFragment : BaseFragment() {
             }
         })
 
-        val booksQuery = database.child("Books").orderByChild("ownerId").equalTo(preferencesHelper.getUserId())
+        val booksQuery = database.child("Books").orderByChild("ownerId").equalTo(currentProfileUserId!!)
         booksQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -79,7 +103,7 @@ class UserProfileFragment : BaseFragment() {
         userConnections.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    val allChatsForUser = (snapshot.value as HashMap<String, String>).keys.filter { it.contains(preferencesHelper.getUserId()) }
+                    val allChatsForUser = (snapshot.value as HashMap<String, String>).keys.filter { it.contains(currentProfileUserId!!) }
                     userConnectionsCount.text = allChatsForUser.size.toString()
                 }
             }
@@ -88,23 +112,11 @@ class UserProfileFragment : BaseFragment() {
                 AnalyticsUtil.logError(requireContext(), error.toString())
             }
         })
-
-        profileImage.setOnClickListener {
-            ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
-        }
-
-        userViewModel.imageUrl.observe(viewLifecycleOwner,
-            {
-                if (it.isNotEmpty() && it != user.picture) {
-                    database.child("Users").child(preferencesHelper.getUserId()).child("picture").setValue(it)
-                    profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(it))
-                }
-            })
     }
 
     private fun setHelpers() {
         database = FirebaseDatabase.getInstance().reference
         preferencesHelper = PreferencesHelper(requireContext())
-        userViewModel = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
+        userVM = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
     }
 }

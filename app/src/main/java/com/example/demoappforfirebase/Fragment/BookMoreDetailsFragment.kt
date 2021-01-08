@@ -7,7 +7,9 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.example.demoappforfirebase.Model.Book
+import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
@@ -24,7 +26,7 @@ class BookMoreDetailsFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
-    private lateinit var book: Book
+    private lateinit var bookVM: BookViewModel
     private var bookId: String = ""
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = layoutInflater.inflate(R.layout.fragment_book_more_details, container, false)
@@ -41,14 +43,12 @@ class BookMoreDetailsFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        fragmentHelper = FragmentHelper(requireActivity())
-        preferencesHelper = PreferencesHelper(requireContext())
-        database = FirebaseDatabase.getInstance().reference
+        setHelpers()
         val bookQuery: Query =
             database.child("Books").child(bookId)
         bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                book = dataSnapshot.getValue(Book::class.java)!!
+                val book = dataSnapshot.getValue(Book::class.java)!!
                 try {
                     val image = decodeFromFirebaseBase64(book.image)
                     bookImage.setImageBitmap(image)
@@ -58,18 +58,42 @@ class BookMoreDetailsFragment : BaseFragment() {
                 bookName.text = book.title
                 bookAuthor.text = book.author
                 bookDescription.text = book.description
+                bookVM.book.value = book
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 AnalyticsUtil.logError(requireContext(), databaseError.toString())
             }
         })
-        btnContactUser.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("chatId", book.ownerId)
-            bundle.putBoolean("fromChatListFragment", false)
-            fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
+
+        bookVM.book.observe(viewLifecycleOwner, {
+            if (it != null) {
+                moreDetailsProgressBar.visibility = View.GONE
+                bookMoreDetailsParent.visibility = View.VISIBLE
+            }
+        })
+
+        if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
+            contactUserButtons.visibility = View.VISIBLE
+            btnSeeUserProfile.setOnClickListener {
+                val bundle = Bundle()
+                bundle.putString("userId", bookVM.book.value?.ownerId)
+                fragmentHelper.replaceFragment(UserProfileFragment::class.java, bundle)
+            }
+            btnContactUser.setOnClickListener {
+                val bundle = Bundle()
+                bundle.putString("chatId", bookVM.book.value?.ownerId)
+                bundle.putBoolean("fromChatListFragment", false)
+                fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
+            }
         }
+    }
+
+    private fun setHelpers() {
+        fragmentHelper = FragmentHelper(requireActivity())
+        preferencesHelper = PreferencesHelper(requireContext())
+        database = FirebaseDatabase.getInstance().reference
+        bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
     }
 
     @Throws(IOException::class)
