@@ -13,7 +13,7 @@ data class Book(
     var categories: ArrayList<Int>,
     var timeStamp: Long
 ) {
-    constructor() : this("", "", "", "", "", "", ArrayList(), Date().time)
+    constructor() : this("", "", "", "", "", "", ArrayList(), 0L)
 }
 
 enum class Categories{

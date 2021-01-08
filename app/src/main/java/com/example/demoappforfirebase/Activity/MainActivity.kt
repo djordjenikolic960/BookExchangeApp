@@ -263,20 +263,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.subtitle = null
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-           fragment_container.setPadding(0,0,0,resources.getDimension(R.dimen.bottom_toolbar_height).toInt())
+            fragment_container.setPadding(0, 0, 0, resources.getDimension(R.dimen.bottom_toolbar_height).toInt())
         } else {
             fragment_container.setPadding(0)
         }
         when {
+            fragmentHelper.isFragmentVisible(BookFragment::class.java) ->
+                supportActionBar!!.title = "Book"
             fragmentHelper.isFragmentVisible(BookListFragment::class.java) -> {
                 supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-                supportActionBar!!.title = null
+                supportActionBar!!.title = "Book exchange"
             }
-            fragmentHelper.isFragmentVisible(BookFragment::class.java) -> {
-                toggle.isDrawerIndicatorEnabled = false
-            }
-            fragmentHelper.isFragmentVisible(ChatListFragment::class.java) -> supportActionBar!!.title =
-                "Messages"
+            fragmentHelper.isFragmentVisible(BookMoreDetailsFragment::class.java) ->
+                supportActionBar!!.title = "More details"
+            fragmentHelper.isFragmentVisible(ChatListFragment::class.java) ||
+                    fragmentHelper.isFragmentVisible(ChatFragment::class.java)  ->
+                supportActionBar!!.title = "Messages"
+            fragmentHelper.isFragmentVisible(UserProfileFragment::class.java) ->
+                supportActionBar!!.title = "Profile"
         }
 
         bottomAppBar.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
