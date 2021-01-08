@@ -336,7 +336,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun setItemLogOut(menu: Menu?) {
         val actionLogOut = menu?.findItem(R.id.action_log_out)
-        actionLogOut?.isVisible = fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)
+        actionLogOut?.isVisible = fragmentHelper.isFragmentVisible(UserProfileFragment::class.java) && userVM.isMyProfile
 
         actionLogOut?.setOnMenuItemClickListener {
             preferencesHelper.setUserId("")

@@ -9,6 +9,7 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     var categoriesSelected = ArrayList<Int>()
     var oldBooks = ArrayList<Book>()
     var currentBooks = MutableLiveData<ArrayList<Book>>()
+    var book = MutableLiveData<Book>()
 
     init {
         currentBooks.value = arrayListOf()
