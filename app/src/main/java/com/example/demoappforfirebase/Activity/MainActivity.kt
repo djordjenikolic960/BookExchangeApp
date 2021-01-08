@@ -1,15 +1,22 @@
 package com.example.demoappforfirebase
 
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PorterDuff
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.DisplayMetrics
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -19,16 +26,22 @@ import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.ascendik.diary.util.ImageUtil
 import com.ascendik.diary.util.ImageUtil.REQUEST_GALLERY_PHOTO
 import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
 import com.example.demoappforfirebase.Activity.SignUpActivity
+import com.example.demoappforfirebase.Adapter.CategoriesAdapter
 import com.example.demoappforfirebase.Fragment.*
 import com.example.demoappforfirebase.Model.BookViewModel
 import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
+import com.example.demoappforfirebase.Utils.StyleUtil.getAttributeColor
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -49,6 +62,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var userVM: UserViewModel
+
+    enum class SortType { NEWER_FIRST, OLDER_FIRST, A_TO_Z, Z_TO_A }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -246,8 +261,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        toggle.isDrawerIndicatorEnabled =
-            fragmentHelper.isFragmentVisible(BookListFragment::class.java)
         supportActionBar!!.subtitle = null
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
            fragment_container.setPadding(0,0,0,resources.getDimension(R.dimen.bottom_toolbar_height).toInt())
@@ -257,7 +270,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when {
             fragmentHelper.isFragmentVisible(BookListFragment::class.java) -> {
                 supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-                toggle.isDrawerIndicatorEnabled = true
                 supportActionBar!!.title = null
             }
             fragmentHelper.isFragmentVisible(BookFragment::class.java) -> {
@@ -319,6 +331,69 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun setItemSort(menu: Menu?) {
         val actionSort = menu?.findItem(R.id.action_sort)
         actionSort?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
+        actionSort?.setOnMenuItemClickListener {
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val width: Int = displayMetrics.widthPixels
+            val popupWindow = getSortPopupWindow()
+            popupWindow.showAsDropDown(toolbar, width, 0)
+            true
+        }
+    }
+
+    private fun getSortPopupWindow(): PopupWindow {
+        val popupWindow = PopupWindow(this)
+        popupWindow.setBackgroundDrawable(BitmapDrawable())
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.view_sort_popup_window, null)
+        val drawable = GradientDrawable()
+        drawable.shape = GradientDrawable.RECTANGLE
+        drawable.setColorFilter(getAttributeColor(this, R.attr.colorBackgroundFloating), PorterDuff.Mode.SRC_IN)
+        view.findViewById<FrameLayout>(R.id.sortAndTagDropDownMenuParent).setBackgroundDrawable(drawable)
+        popupWindow.isFocusable = true
+        popupWindow.width = WindowManager.LayoutParams.WRAP_CONTENT
+        popupWindow.height = WindowManager.LayoutParams.WRAP_CONTENT
+        popupWindow.contentView = view
+
+        view.findViewById<RadioGroup>(R.id.action_sort_radio_group).setOnCheckedChangeListener { radioGroup, _ ->
+            when (radioGroup.checkedRadioButtonId) {
+                view.findViewById<RadioButton>(R.id.action_newer_first).id -> bookVM.setNewSortType(SortType.NEWER_FIRST.ordinal)
+                view.findViewById<RadioButton>(R.id.action_older_first).id -> bookVM.setNewSortType(SortType.OLDER_FIRST.ordinal)
+                view.findViewById<RadioButton>(R.id.action_a_to_z).id -> bookVM.setNewSortType(SortType.A_TO_Z.ordinal)
+                view.findViewById<RadioButton>(R.id.action_z_to_a).id -> bookVM.setNewSortType(SortType.Z_TO_A.ordinal)
+            }
+        }
+        view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(
+            when (preferencesHelper.getSortType()) {
+                SortType.NEWER_FIRST.ordinal -> view.findViewById<RadioButton>(R.id.action_newer_first).id
+                SortType.OLDER_FIRST.ordinal -> view.findViewById<RadioButton>(R.id.action_older_first).id
+                SortType.A_TO_Z.ordinal -> view.findViewById<RadioButton>(R.id.action_a_to_z).id
+                else -> view.findViewById<RadioButton>(R.id.action_z_to_a).id
+            }
+        )
+        view.findViewById<TextView>(R.id.action_newer_first_text).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_newer_first).id)
+        }
+        view.findViewById<TextView>(R.id.action_older_first_text).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_older_first).id)
+        }
+        view.findViewById<TextView>(R.id.action_a_to_z_text).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_a_to_z).id)
+        }
+        view.findViewById<TextView>(R.id.action_z_to_a_text).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_z_to_a).id)
+        }
+        val recyclerView = view.findViewById<RecyclerView>(R.id.categoriesRecycler)
+        val layoutManager = FlexboxLayoutManager(this)
+        layoutManager.flexDirection = FlexDirection.ROW
+        layoutManager.justifyContent = JustifyContent.FLEX_START
+        recyclerView.layoutManager = layoutManager
+        val params = recyclerView.layoutParams as LinearLayout.LayoutParams
+        recyclerView.layoutParams = params
+        val adapter = CategoriesAdapter()
+        recyclerView.adapter = adapter
+
+        return popupWindow
     }
 
     private fun setItemLogOut(menu: Menu?) {

@@ -17,6 +17,7 @@ import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_book.*
+import java.util.*
 
 class BookFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
@@ -73,7 +74,8 @@ class BookFragment : BaseFragment() {
                         bookAuthor.editableText.toString(),
                         bookVM.imageUrl ?: "",
                         bookDescription.editableText.toString(),
-                        bookVM.categoriesSelected
+                        bookVM.categoriesSelected,
+                        Date().time
                     )
                 )
             preferencesHelper.setIndex(preferencesHelper.getIndex() + 1)
