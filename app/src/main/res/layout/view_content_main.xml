@@ -9,14 +9,14 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/peachOrangeLight">
+        android:background="?attr/toolbar_color">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_marginTop="25dp"
-            android:background="@color/peachOrangeLight"
+            android:background="?attr/toolbar_color"
             app:layout_collapseMode="pin"
             app:titleTextColor="?android:attr/textColorSecondary" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -26,13 +26,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/appBar"
-        android:paddingBottom="36dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/backgroundColor"
+            android:background="?attr/bg_home"
             android:scaleType="centerCrop" />
     </FrameLayout>
 
@@ -46,7 +45,7 @@
             android:id="@+id/bottomToolbar"
             layout="@layout/view_bottom_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
     </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -21,7 +21,9 @@ import java.lang.StringBuilder
 class UserProfileFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
+    private lateinit var fragmentHelper: FragmentHelper
     private lateinit var userVM: UserViewModel
+    private lateinit var bookVM: BookViewModel
     private lateinit var user: User
     private var currentProfileUserId: String? = null
 
@@ -35,7 +37,7 @@ class UserProfileFragment : BaseFragment() {
     }
 
     override fun onBackPressed() {
-        FragmentHelper(requireActivity()).replaceFragment(BookListFragment::class.java)
+        fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -44,11 +46,10 @@ class UserProfileFragment : BaseFragment() {
         currentProfileUserId = currentProfileUserId ?: preferencesHelper.getUserId()
         userVM.isMyProfile = currentProfileUserId.equals(preferencesHelper.getUserId())
         setUserProfile()
-        if(currentProfileUserId.equals(preferencesHelper.getUserId())){
+        if (currentProfileUserId.equals(preferencesHelper.getUserId())) {
             profileImage.setOnClickListener {
                 ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
             }
-
             userVM.imageUrl.observe(viewLifecycleOwner,
                 {
                     if (it.isNotEmpty() && it != user.picture) {
@@ -56,6 +57,14 @@ class UserProfileFragment : BaseFragment() {
                         profileImage.setImageBitmap(ImageUtil.decodeFromFirebaseBase64(it))
                     }
                 })
+        } else {
+            btnContactUser.visibility = View.VISIBLE
+            btnContactUser.setOnClickListener {
+                val bundle = Bundle()
+                bundle.putString("chatId", bookVM.book.value?.ownerId)
+                bundle.putString("openedFromFragment", UserProfileFragment::class.simpleName)
+                fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
+            }
         }
     }
 
@@ -118,5 +127,7 @@ class UserProfileFragment : BaseFragment() {
         database = FirebaseDatabase.getInstance().reference
         preferencesHelper = PreferencesHelper(requireContext())
         userVM = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
+        bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
+        fragmentHelper = FragmentHelper(requireActivity())
     }
 }

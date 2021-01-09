@@ -2,17 +2,27 @@
     <!-- Base application theme. -->
     <style name="BaseAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar"/>
     <style name="AppTheme" parent="BaseAppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/backgroundColor</item>
+        <item name="colorPrimary">@color/colorPrimaryMoon</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorPrimaryDark">@color/backgroundColor</item>
-        <item name="colorSecondary">@color/peachOrangeLight</item>
-        <item name="colorBackgroundFloating">@color/black_90percent</item>
-        <item name="colorSurface">@color/black_90percent</item>
-        <item name="android:itemBackground">@color/black_90percent</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkMoon</item>
+        <item name="colorSecondary">@color/colorSecondaryMoon</item>
+        <item name="colorOnSecondary">@color/white_70percent</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurface">@color/colorPrimaryBrightMoon</item>
+        <item name="colorBackgroundFloating">@color/colorPrimaryBrightMoon</item>
+        <item name="colorControlHighlight">@color/white_25percent</item>
+        <item name="colorControlActivated">@color/colorSecondaryMoon</item>
+        <item name="colorSwitchThumbNormal">@color/colorThumbNormalMoon</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white_70percent</item>
-        <item name="colorControlHighlight">@color/black_25percent</item>
+        <item name="android:itemBackground">@color/colorPrimaryBrightMoon</item>
+        <item name="android:textColorHint">@color/white_70percent</item>
+        <item name="android:listDivider">@color/white_12percent</item>
+        <item name="bg_home">@color/proBgColorMoon</item>
+        <item name="toolbar_gradient">@drawable/toolbar_dark_bg</item>
+        <item name="toolbar_color">@color/colorPrimaryDarkMoon</item>
+        <item name="my_message_color">@color/colorPrimaryDarkMoon</item>
+        <item name="other_message_color">@color/colorSecondaryMoon</item>
     </style>
 </resources>

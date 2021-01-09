@@ -62,7 +62,7 @@ class BookFragment : BaseFragment() {
         bookImage.setOnClickListener {
             ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
-        btnWrite.setBackgroundDrawable(StyleUtil.getRoundedShapeDrawable(resources.getColor(R.color.peachOrangeDark), 20f))
+        btnWrite.setBackgroundDrawable(StyleUtil.getRoundedShapeDrawable(StyleUtil.getAttributeColor(requireContext(), R.attr.colorControlActivated), 20f))
         btnWrite.setOnClickListener {
             val generatedId: String = database.push().key!!
             database.child("Books").child(generatedId)

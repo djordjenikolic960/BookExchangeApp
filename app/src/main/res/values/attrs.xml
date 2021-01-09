@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="bg_home" format="reference" />
+    <attr name="toolbar_gradient" format="reference" />
+    <attr name="toolbar_color" format="reference" />
+    <attr name="my_message_color" format="reference" />
+    <attr name="other_message_color" format="reference" />
+</resources>

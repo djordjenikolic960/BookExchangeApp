@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.demoappforfirebase.Fragment.ChatFragment
+import com.example.demoappforfirebase.Fragment.ChatListFragment
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.FragmentHelper
@@ -48,7 +49,7 @@ class ChatsAdapter (private val dataSet: ArrayList<User>) :
     private fun showChatFragment(user: User) {
         val bundle = Bundle()
         bundle.putString("chatId", user.id)
-        bundle.putBoolean("fromChatListFragment", true)
+        bundle.putString("openedFromFragment", ChatListFragment::class.simpleName)
         fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
     }
 }

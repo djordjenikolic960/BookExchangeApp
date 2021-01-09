@@ -2,18 +2,28 @@
     <!-- Base application theme. -->
     <style name="BaseAppTheme" parent="Theme.MaterialComponents.Light.NoActionBar"/>
     <style name="AppTheme" parent="BaseAppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">@color/backgroundColor</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorPrimaryDark">@color/backgroundColor</item>
-        <item name="colorSecondary">@color/peachOrangeLight</item>
-        <item name="colorBackgroundFloating">@color/black_90percent</item>
-        <item name="colorSurface">@color/black_90percent</item>
-        <item name="android:itemBackground">@color/black_90percent</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/white_70percent</item>
+        <item name="colorPrimary">@color/colorPrimaryNotebook</item>
+        <item name="colorOnPrimary">@color/notebook_text_color_87percent</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDarkNotebook</item>
+        <item name="colorSecondary">@color/colorSecondaryNotebook</item>
+        <item name="colorOnSecondary">@color/notebook_text_color_54percent</item>
+        <item name="colorOnSurface">@color/notebook_text_color_87percent</item>
+        <item name="colorSurface">@color/colorPrimaryBrightNotebook</item>
+        <item name="colorBackgroundFloating">@color/colorPrimaryBrightNotebook</item>
         <item name="colorControlHighlight">@color/black_25percent</item>
+        <item name="colorControlActivated">@color/colorSecondaryDarkNotebook</item>
+        <item name="colorSwitchThumbNormal">@color/colorThumbNormalNotebook</item>
+        <item name="android:textColor">@color/notebook_text_color_87percent</item>
+        <item name="android:textColorPrimary">@color/notebook_text_color_87percent</item>
+        <item name="android:textColorSecondary">@color/notebook_text_color_54percent</item>
+        <item name="android:itemBackground">@color/colorPrimaryBrightNotebook</item>
+        <item name="android:textColorHint">@color/notebook_text_color_54percent</item>
+        <item name="android:listDivider">@color/black_12percent</item>
+        <item name="bg_home">@color/proBgColorNotebook</item>
+        <item name="toolbar_gradient">@drawable/toolbar_light_bg</item>
+        <item name="toolbar_color">@color/colorSecondaryNotebook</item>
+        <item name="my_message_color">@color/colorSecondaryDarkNotebook</item>
+        <item name="other_message_color">@color/colorSecondaryNotebook</item>
     </style>
 
 </resources>

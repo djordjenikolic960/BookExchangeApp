@@ -42,7 +42,6 @@ import com.example.demoappforfirebase.Utils.StyleUtil.getAttributeColor
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
-import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
@@ -55,7 +54,7 @@ import kotlinx.android.synthetic.main.view_content_main.*
 import java.io.ByteArrayOutputStream
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var bookVM: BookViewModel
     private lateinit var auth: FirebaseAuth
@@ -428,15 +427,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, SignUpActivity::class.java))
             finish()
         }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.drawer_item_chats -> {
-                fragmentHelper.replaceFragment(ChatListFragment::class.java)
-            }
-        }
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
