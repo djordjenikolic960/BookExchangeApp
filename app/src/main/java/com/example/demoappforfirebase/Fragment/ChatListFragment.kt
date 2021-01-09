@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import com.example.demoappforfirebase.Adapter.ChatsAdapter
+import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
@@ -13,6 +13,7 @@ import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat_list.*
+import java.lang.StringBuilder
 
 class ChatListFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
@@ -24,7 +25,7 @@ class ChatListFragment : BaseFragment() {
     }
 
     override fun onBackPressed() {
-      fragmentHelper.replaceFragment(BookListFragment::class.java)
+        fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -54,6 +55,7 @@ class ChatListFragment : BaseFragment() {
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
                                 if (dataSnapshot.exists()) {
                                     val users = arrayListOf<User>()
+                                    val lastMessages = arrayListOf<Message>()
                                     var numberOfUsers = 0
                                     for (postSnapshot in dataSnapshot.children) {
                                         if (postSnapshot.key == "Users") {
@@ -65,9 +67,40 @@ class ChatListFragment : BaseFragment() {
                                                 }
                                             }
                                         }
-                                        val adapter = ChatsAdapter(users)
+                                        val adapter = ChatsAdapter(users, lastMessages)
                                         if (fragmentHelper.isFragmentVisible(ChatListFragment::class.java)) {
                                             userRecycler.adapter = adapter
+                                        }
+                                    }
+                                    if (users.isNotEmpty()) {
+                                        for (user in users) {
+                                            var id = ""
+                                            val stringBuilder = StringBuilder()
+                                            id = if (preferencesHelper.getUserId() > user.id) {
+                                                stringBuilder.append(preferencesHelper.getUserId()).append(user.id).toString()
+                                            } else {
+                                                stringBuilder.append(user.id).append(preferencesHelper.getUserId()).toString()
+                                            }
+                                            val messages = arrayListOf<Message>()
+                                            val chatQuery: Query =
+                                                database.child("Chats").child(id)
+                                            chatQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+                                                override fun onDataChange(snapshot: DataSnapshot) {
+                                                    for (child in snapshot.children) {
+                                                        val msg = child.getValue(Message::class.java)
+                                                        messages.add(msg!!)
+                                                    }
+                                                    lastMessages.add(messages.last())
+                                                    val adapter = ChatsAdapter(users, lastMessages)
+                                                    if (fragmentHelper.isFragmentVisible(ChatListFragment::class.java)) {
+                                                        userRecycler.adapter = adapter
+                                                    }
+                                                }
+
+                                                override fun onCancelled(error: DatabaseError) {
+                                                    TODO("Not yet implemented")
+                                                }
+                                            })
                                         }
                                     }
                                 }

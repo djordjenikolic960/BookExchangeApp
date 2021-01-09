@@ -5,10 +5,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.cardview.widget.CardView
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
@@ -19,6 +15,8 @@ import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_chat.*
+import kotlinx.android.synthetic.main.view_chat_message.view.*
+import kotlinx.android.synthetic.main.view_chat_message.view.userNameFirstLetter
 import java.lang.StringBuilder
 
 class ChatFragment : BaseFragment() {
@@ -35,8 +33,8 @@ class ChatFragment : BaseFragment() {
         val args = arguments
         if (args != null) {
             otherUserId = args.getString("chatId", "")
-            openedFragmentFrom = args.getString("openedFromFragment","")
-            bookIdIfFromBookMoreDetails = args.getString("bookId","")
+            openedFragmentFrom = args.getString("openedFromFragment", "")
+            bookIdIfFromBookMoreDetails = args.getString("bookId", "")
         }
         return rootView
     }
@@ -65,34 +63,11 @@ class ChatFragment : BaseFragment() {
         chatVM.messages.observe(viewLifecycleOwner, {
             chat.removeAllViews()
             for (message in it) {
-                val cardView = CardView(requireContext())
-                val cardParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                val textView = TextView(requireContext())
-                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                if (message.author == preferencesHelper.getUserId()) {
-                    cardParams.gravity = Gravity.END
-                    cardView.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.my_message_color))
-                } else {
-                    cardView.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.other_message_color))
-                    cardParams.gravity = Gravity.START
-                }
-                cardParams.setMargins(4, 4, 4, 4)
-                cardView.layoutParams = cardParams
-                cardView.radius = 50f
-                textView.textSize = 18f
-                textView.setTextColor(ResourcesCompat.getColor(resources,R.color.white, requireContext().theme))
-                params.setMargins(
-                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
-                    resources.getDimension(R.dimen.message_vertical_margin).toInt(),
-                    resources.getDimension(R.dimen.message_horizontal_margin).toInt(),
-                    resources.getDimension(R.dimen.message_vertical_margin).toInt()
-                )
-                textView.layoutParams = params
-                textView.text = message.message
-                cardView.addView(textView)
-                chat.addView(cardView)
+                updateMessageStatus(message)
+                chat.addView(getMessageView(message))
             }
         })
+
         database = FirebaseDatabase.getInstance().reference
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -126,13 +101,59 @@ class ChatFragment : BaseFragment() {
         }
         database.addValueEventListener(databaseListener)
         btnSend.setOnClickListener {
+            val stringBuilder = StringBuilder()
+            id = if (preferencesHelper.getUserId() > otherUserId) {
+                stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
+            } else {
+                stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
+            }
             val generatedId: String = database.push().key!!
             database.child("Chats").child(id).child(generatedId)
-                .setValue(Message(preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis()))
+                .setValue(Message(generatedId, preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis(), false))
             message.editableText.clear()
         }
         message.setOnFocusChangeListener { _, hasFocus ->
             StyleUtil.stylizeStatusBar(requireActivity(), !hasFocus)
         }
+    }
+
+    private fun updateMessageStatus(message: Message) {
+        val stringBuilder = StringBuilder()
+        id = if (preferencesHelper.getUserId() > otherUserId) {
+            stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
+        } else {
+            stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
+        }
+        message.isRead = true
+        if (message.author != preferencesHelper.getUserId()) {
+            database.child("Chats").child(id).child(message.id).setValue(message)
+        }
+    }
+
+    private fun getMessageView(message: Message): View {
+        val inflater = LayoutInflater.from(requireContext())
+        val nullParent: ViewGroup? = null
+        val view: View = inflater.inflate(R.layout.view_chat_message, nullParent)
+        if (message.author == preferencesHelper.getUserId()) {
+            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.my_message_color))
+            view.messageLayout.gravity = Gravity.END
+            val imageLayout = view.imageLayout
+            view.messageLayout.removeView(view.imageLayout)
+            view.messageLayout.addView(imageLayout)
+        } else {
+            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.other_message_color))
+            view.messageLayout.gravity = Gravity.START
+        }
+        view.userNameFirstLetter.text = "M"
+        view.userImage.setBackgroundDrawable(
+            StyleUtil.getRoundedShapeDrawable(
+                requireContext().resources.getColor(R.color.white_70percent),
+                200f
+            )
+        )
+        view.message.text = message.message
+        return view
     }
 }

@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp"
+    app:cardBackgroundColor="?android:attr/itemBackground"
     app:cardCornerRadius="2dp"
     app:cardMaxElevation="2dp"
-    app:cardBackgroundColor="?android:attr/itemBackground"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
@@ -16,11 +16,25 @@
         android:orientation="horizontal"
         android:padding="8dp">
 
-        <ImageView
-            android:src="@drawable/ic_profile"
-            android:id="@+id/userImage"
+        <FrameLayout
             android:layout_width="48dp"
-            android:layout_height="48dp" />
+            android:layout_height="48dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/userImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical" />
+
+            <TextView
+                android:id="@+id/userNameFirstLetter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textAllCaps="true"
+                android:layout_gravity="center"
+                android:textSize="20sp"/>
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
