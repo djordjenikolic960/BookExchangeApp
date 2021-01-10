@@ -7,7 +7,6 @@
         android:icon="@drawable/ic_chat"
         android:orderInCategory="1"
         android:title="Chats"
-        app:iconTint="@color/white"
         app:showAsAction="always" />
 
     <item

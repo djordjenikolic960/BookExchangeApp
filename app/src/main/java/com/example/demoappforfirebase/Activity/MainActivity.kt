@@ -18,13 +18,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
 import android.widget.*
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.ascendik.diary.util.ImageUtil
@@ -33,11 +30,8 @@ import com.ascendik.diary.util.ImageUtil.REQUEST_TAKE_PHOTO
 import com.example.demoappforfirebase.Activity.SignUpActivity
 import com.example.demoappforfirebase.Adapter.CategoriesAdapter
 import com.example.demoappforfirebase.Fragment.*
-import com.example.demoappforfirebase.Model.BookViewModel
-import com.example.demoappforfirebase.Model.UserViewModel
-import com.example.demoappforfirebase.Utils.FragmentHelper
-import com.example.demoappforfirebase.Utils.PreferencesHelper
-import com.example.demoappforfirebase.Utils.StyleUtil
+import com.example.demoappforfirebase.Model.*
+import com.example.demoappforfirebase.Utils.*
 import com.example.demoappforfirebase.Utils.StyleUtil.getAttributeColor
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -46,151 +40,138 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_book.*
+import kotlinx.android.synthetic.main.fragment_chat_list.*
 import kotlinx.android.synthetic.main.fragment_user_profile.*
 import kotlinx.android.synthetic.main.view_bottom_toolbar.*
 import kotlinx.android.synthetic.main.view_content_main.*
 import java.io.ByteArrayOutputStream
+import java.lang.StringBuilder
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var bookVM: BookViewModel
     private lateinit var auth: FirebaseAuth
-    private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var database: DatabaseReference
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var userVM: UserViewModel
+    private lateinit var chatVM: ChatViewModel
+    private var chatId = ""
 
     enum class SortType { NEWER_FIRST, OLDER_FIRST, A_TO_Z, Z_TO_A }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.view_content_main)
         StyleUtil.stylizeStatusBar(this@MainActivity, true)
         setSupportActionBar(toolbar)
         initHelpers()
         setToolbarListeners()
         fragmentHelper.initFragment(savedInstanceState)
-        /*usersRecycler = findViewById(R.id.usersRecycler)
-        usersRecycler.layoutManager = LinearLayoutManager(this)
-        database = FirebaseDatabase.getInstance().reference
-        // Initialize Firebase Auth
+        chatVM.hasNewMessages.observe(this, {
+            invalidateOptionsMenu()
+        })
+        updateChatIndicator()
+    }
 
-        findViewById<Button>(R.id.btnDelete).setOnClickListener {
-            val bookQuery: Query =
-                database.child("user1")
-            bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    dataSnapshot.ref.removeValue()
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    //Log.e(TAG, "onCancelled", databaseError.toException())
-                }
-            })
-        }
-
-        findViewById<Button>(R.id.btnUpdate).setOnClickListener {
-            val bookQuery: Query =
-                database.child("user1")
-            bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    dataSnapshot.ref.setValue(Book("novo", "update"))
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    //Log.e(TAG, "onCancelled", databaseError.toException())
-                }
-            })
-        }
-
-        findViewById<Button>(R.id.btnShowUsers).setOnClickListener {
-            val userQuery: Query =
-                database.child("simpleChat").child("users")
-            userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    for (child in dataSnapshot.children) {
-                        Toast.makeText(applicationContext, child.children.first().value.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-        }
-
-        findViewById<Button>(R.id.btnSendMsg).setOnClickListener {
-            val userQuery: Query =
-                database.child("simpleChat").child("users")
-            userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (child in snapshot.children) {
-                        val receiverId = child.children.first().value
-                        val senderId = auth.currentUser!!.uid
-                        database.child("messages").child(
-                            if (receiverId.toString() > senderId) {
-                                receiverId.toString() + senderId
-                            } else {
-                                senderId + receiverId.toString()
-                            }
-                        ).child("message").setValue("poruka je poslata")
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-
-            })
-        }
-
+    private fun updateChatIndicator() {
         val databaseListener = object : ValueEventListener {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    val books = arrayListOf<Book>()
-                    val users = arrayListOf<String>()
+                    val chattingUsersId = arrayListOf<String>()
                     for (postSnapshot in dataSnapshot.children) {
-                        if (postSnapshot.key == "simpleChat") {
-                            val user = postSnapshot.child("users")
-                            for (child in user.children) {
-                                users.add(child.key.toString())
+                        if (postSnapshot.key == "Chats") {
+                            for (snapShot in postSnapshot.children) {
+                                if (preferencesHelper.getUserId().let { snapShot.key?.contains(it) }!!) {
+                                    chatId = snapShot.key.toString()
+                                    chatId = chatId.replace(preferencesHelper.getUserId(), "")
+                                    chattingUsersId.add(chatId)
+                                }
                             }
-                            val adapter = UsersAdapter(users)
-                            usersRecycler.adapter = adapter
-                        } else {
-                            val person1: Book = postSnapshot.getValue(Book::class.java)!!
-                            books.add(person1)
                         }
-                        val adapter = BooksAdapter(books)
-                      //  booksRecycler.adapter = adapter
+                    }
+                    if (chattingUsersId.isNotEmpty()) {
+                        for (user in chattingUsersId) {
+                            var id = ""
+                            val stringBuilder = StringBuilder()
+                            id = if (preferencesHelper.getUserId() > user) {
+                                stringBuilder.append(preferencesHelper.getUserId()).append(user).toString()
+                            } else {
+                                stringBuilder.append(chatId).append(preferencesHelper.getUserId()).toString()
+                            }
+                            val lastMessages = arrayListOf<Message>()
+                            val allMessages = arrayListOf<Message>()
+                            val databaseListener = object : ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    for (postSnapshot in dataSnapshot.children) {
+                                        if (postSnapshot.key == "Chats") {
+                                            for (chat in postSnapshot.children) {
+                                                if (chat.key == id) {
+                                                    for (chatChild in chat.children) {
+                                                        val msg = chatChild.getValue(Message::class.java)
+                                                        if (msg!!.author != preferencesHelper.getUserId()) {
+                                                            allMessages.add(msg)
+                                                        }
+                                                    }
+                                                    if (allMessages.isNotEmpty()) {
+                                                        lastMessages.add(allMessages.last())
+                                                        for (msg in lastMessages) {
+                                                            if (!msg.isRead) {
+                                                                chatVM.hasNewMessages.value = true
+                                                                break
+                                                            }
+                                                            chatVM.hasNewMessages.value = false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    allMessages.clear()
+                                    lastMessages.clear()
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    AnalyticsUtil.logError(this@MainActivity, error.toString())
+                                }
+                            }
+                            database.addValueEventListener(databaseListener)
+                        }
                     }
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Failed to read value
+                AnalyticsUtil.logError(this@MainActivity, databaseError.toString())
             }
         }
 
-        database.addValueEventListener(databaseListener)*/
+        database.addValueEventListener(databaseListener)
     }
 
     private fun initHelpers() {
         fragmentHelper = FragmentHelper(this)
         bookVM = ViewModelProvider(this).get(BookViewModel::class.java)
         userVM = ViewModelProvider(this).get(UserViewModel::class.java)
+        chatVM = ViewModelProvider(this).get(ChatViewModel::class.java)
         preferencesHelper = PreferencesHelper(this)
         auth = Firebase.auth
+        database = FirebaseDatabase.getInstance().reference
     }
 
     private fun setToolbarListeners() {
         toolbarItemAdd.setOnClickListener {
             fragmentHelper.replaceFragment(BookFragment::class.java)
         }
+        addLayout.setOnClickListener {
+            fragmentHelper.replaceFragment(BookFragment::class.java)
+        }
         toolbarItemProfile.setOnClickListener {
+            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
+        }
+        profileLayout.setOnClickListener {
             fragmentHelper.replaceFragment(UserProfileFragment::class.java)
         }
     }
@@ -276,7 +257,7 @@ class MainActivity : AppCompatActivity() {
             fragmentHelper.isFragmentVisible(BookMoreDetailsFragment::class.java) ->
                 supportActionBar!!.title = "More details"
             fragmentHelper.isFragmentVisible(ChatListFragment::class.java) ||
-                    fragmentHelper.isFragmentVisible(ChatFragment::class.java)  ->
+                    fragmentHelper.isFragmentVisible(ChatFragment::class.java) ->
                 supportActionBar!!.title = "Messages"
             fragmentHelper.isFragmentVisible(UserProfileFragment::class.java) ->
                 supportActionBar!!.title = "Profile"
@@ -285,16 +266,10 @@ class MainActivity : AppCompatActivity() {
         bottomAppBar.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        setItemOpenChat(menu)
+        setItemChat(menu)
         setItemLogOut(menu)
         setItemSort(menu)
         setActionSearch(menu)
-
-        if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-            drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        } else {
-            drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        }
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -326,6 +301,9 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
+        searchLayout.setOnClickListener {
+            actionSearch.expandActionView()
+        }
         toolbarItemSearch.setOnClickListener {
             actionSearch.expandActionView()
         }
@@ -411,8 +389,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setItemOpenChat(menu: Menu?) {
+    private fun setItemChat(menu: Menu?) {
         val actionOpenChats = menu?.findItem(R.id.action_chat)
+        actionOpenChats?.icon = BitmapUtil.getMessageIndicator(this, chatVM.hasNewMessages.value!!)
         actionOpenChats?.isVisible = fragmentHelper.isFragmentVisible(BookListFragment::class.java)
 
         actionOpenChats?.setOnMenuItemClickListener {
@@ -430,14 +409,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        item.isChecked = !item.isChecked
         return when (item.itemId) {
             android.R.id.home -> {
-                if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-                    drawer_layout.openDrawer(GravityCompat.START)
-                } else {
-                    onBackPressed()
-                }
+                onBackPressed()
                 true
             }
             else -> return super.onOptionsItemSelected(item)
