@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
+import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
@@ -60,6 +62,29 @@ class ChatFragment : BaseFragment() {
         chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
         preferencesHelper = PreferencesHelper(requireContext())
         fragmentHelper = FragmentHelper(requireActivity())
+        database = FirebaseDatabase.getInstance().reference
+        val otherUserQuery = database.child("Users").child(otherUserId)
+        otherUserQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                chatVM.otherUser = dataSnapshot.getValue(User::class.java)!!
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
+        val userQuery = database.child("Users").child(preferencesHelper.getUserId())
+        userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                chatVM.user = dataSnapshot.getValue(User::class.java)!!
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
         chatVM.messages.observe(viewLifecycleOwner, {
             chat.removeAllViews()
             for (message in it) {
@@ -68,7 +93,6 @@ class ChatFragment : BaseFragment() {
             }
         })
 
-        database = FirebaseDatabase.getInstance().reference
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -135,24 +159,27 @@ class ChatFragment : BaseFragment() {
         val nullParent: ViewGroup? = null
         val view: View = inflater.inflate(R.layout.view_chat_message, nullParent)
         if (message.author == preferencesHelper.getUserId()) {
-            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            if (chatVM.user?.picture == "") {
+                view.userNameFirstLetter.text = chatVM.user?.name?.first()?.toUpperCase().toString()
+            } else {
+                val image = ImageUtil.decodeFromFirebaseBase64(chatVM.user?.picture)
+                view.userImage.setImageBitmap(image)
+            }
             view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.my_message_color))
             view.messageLayout.gravity = Gravity.END
             val imageLayout = view.imageLayout
             view.messageLayout.removeView(view.imageLayout)
             view.messageLayout.addView(imageLayout)
         } else {
-            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            if (chatVM.otherUser?.picture == "") {
+                view.userNameFirstLetter.text = chatVM.otherUser?.name?.first()?.toUpperCase().toString()
+            } else {
+                val image = ImageUtil.decodeFromFirebaseBase64(chatVM.otherUser?.picture)
+                view.userImage.setImageBitmap(image)
+            }
             view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.other_message_color))
             view.messageLayout.gravity = Gravity.START
         }
-        view.userNameFirstLetter.text = "M"
-        view.userImage.setBackgroundDrawable(
-            StyleUtil.getRoundedShapeDrawable(
-                requireContext().resources.getColor(R.color.white_70percent),
-                200f
-            )
-        )
         view.message.text = message.message
         return view
     }
