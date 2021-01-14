@@ -38,6 +38,7 @@ class BookMoreDetailsFragment : BaseFragment() {
     }
 
     override fun onBackPressed() {
+        bookVM.book.value = null
         fragmentHelper.replaceFragment(BookListFragment::class.java)
     }
 

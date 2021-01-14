@@ -77,7 +77,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateChatIndicator() {
         val databaseListener = object : ValueEventListener {
-
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
                     val chattingUsersId = arrayListOf<String>()
