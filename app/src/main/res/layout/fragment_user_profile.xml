@@ -94,7 +94,8 @@
                     android:layout_margin="10dp"
                     android:layout_weight="0.4"
                     android:background="@drawable/rounded_corners_button_white"
-                    android:text="Message" />
+                    android:text="Message"
+                    android:visibility="invisible" />
             </LinearLayout>
         </LinearLayout>
 
