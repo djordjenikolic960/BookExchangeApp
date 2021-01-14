@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.example.demoappforfirebase.Adapter.ChatsAdapter
+import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.R
@@ -19,7 +21,7 @@ class ChatListFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var preferencesHelper: PreferencesHelper
-    private var chatId = ""
+    private lateinit var chatVM: ChatViewModel
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return layoutInflater.inflate(R.layout.fragment_chat_list, container, false)
     }
@@ -30,26 +32,14 @@ class ChatListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        fragmentHelper = FragmentHelper(requireActivity())
-        database = FirebaseDatabase.getInstance().reference
-        preferencesHelper = PreferencesHelper(requireContext())
+        createHelpers()
         val databaseListener = object : ValueEventListener {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    val chattingUsersId = arrayListOf<String>()
-                    for (postSnapshot in dataSnapshot.children) {
-                        if (postSnapshot.key == "Chats") {
-                            for (snapShot in postSnapshot.children) {
-                                if (preferencesHelper.getUserId().let { snapShot.key?.contains(it) }!!) {
-                                    chatId = snapShot.key.toString()
-                                    chatId = chatId.replace(preferencesHelper.getUserId(), "")
-                                    chattingUsersId.add(chatId)
-                                }
-                            }
-                        }
-                    }
-                    if (chattingUsersId.isNotEmpty()) {
+                    chatVM.idsOfUserThatOwnerChatsWith.clear()
+                    chatVM.updateIdsOfUsersThatOwnerChatsWith(dataSnapshot)
+                    if (chatVM.idsOfUserThatOwnerChatsWith.isNotEmpty()) {
                         val databaseListener = object : ValueEventListener {
 
                             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -60,7 +50,7 @@ class ChatListFragment : BaseFragment() {
                                     for (postSnapshot in dataSnapshot.children) {
                                         if (postSnapshot.key == "Users") {
                                             for (snapShot in postSnapshot.children) {
-                                                if (numberOfUsers < chattingUsersId.size && snapShot.key == chattingUsersId[numberOfUsers]) {
+                                                if (numberOfUsers < chatVM.idsOfUserThatOwnerChatsWith.size && snapShot.key == chatVM.idsOfUserThatOwnerChatsWith[numberOfUsers]) {
                                                     val user: User = snapShot.getValue(User::class.java)!!
                                                     users.add(user)
                                                     numberOfUsers++
@@ -98,7 +88,7 @@ class ChatListFragment : BaseFragment() {
                                                 }
 
                                                 override fun onCancelled(error: DatabaseError) {
-                                                    TODO("Not yet implemented")
+                                                    AnalyticsUtil.logError(requireContext(), error.toString())
                                                 }
                                             })
                                         }
@@ -121,5 +111,12 @@ class ChatListFragment : BaseFragment() {
             }
         }
         database.addValueEventListener(databaseListener)
+    }
+
+    private fun createHelpers() {
+        chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        fragmentHelper = FragmentHelper(requireActivity())
+        database = FirebaseDatabase.getInstance().reference
+        preferencesHelper = PreferencesHelper(requireContext())
     }
 }

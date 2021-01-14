@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.PermissionChecker
 import com.example.demoappforfirebase.MainActivity
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -65,6 +66,12 @@ object ImageUtil {
     fun decodeFromFirebaseBase64(image: String?): Bitmap? {
         val decodedByteArray = Base64.decode(image, Base64.DEFAULT)
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.size)
+    }
+
+    fun encodeBitmap(bitmap: Bitmap): String {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
     }
 
     @SuppressLint("QueryPermissionsNeeded")

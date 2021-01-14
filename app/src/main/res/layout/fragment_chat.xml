@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/bg_home">
-
     <ScrollView
+        android:background="?attr/bg_home"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/chatScrollLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="60dp">
+        android:paddingBottom="40dp">
 
         <LinearLayout
             android:id="@+id/chat"
@@ -19,41 +15,3 @@
             android:layout_marginEnd="8dp"
             android:orientation="vertical" />
     </ScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_gravity="bottom"
-        android:background="?attr/bg_home"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.8"
-            app:cardCornerRadius="20dp"
-            app:cardMaxElevation="2dp"
-            app:cardPreventCornerOverlap="false"
-            app:cardUseCompatPadding="true">
-
-            <EditText
-                android:id="@+id/message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/toolbar_gradient"
-                android:hint="Enter your text"
-                android:padding="4dp"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
-
-        <ImageView
-            android:id="@+id/btnSend"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="0.2"
-            android:src="@drawable/ic_send"
-            app:tint="?attr/colorSecondary" />
-    </LinearLayout>
-</FrameLayout>
