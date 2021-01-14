@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Fragment.ChatFragment
 import com.example.demoappforfirebase.Model.Message
 import com.example.demoappforfirebase.Fragment.ChatListFragment
@@ -17,6 +18,7 @@ import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.example.demoappforfirebase.Utils.StyleUtil
 import com.google.firebase.database.*
 import de.hdodenhof.circleimageview.CircleImageView
+import java.io.IOException
 import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,7 +31,6 @@ class ChatsAdapter(private val usersDataSet: ArrayList<User>, private val messag
     private lateinit var database: FirebaseDatabase
 
     class UserHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        //todo ubaciti sliku korisnika pa ako je ima onda je prikazati ako ne neka ostane ovako drawable ili prvo slovo imena
         val userImage: CircleImageView = itemView.findViewById(R.id.userImage)
         val userName: TextView = itemView.findViewById(R.id.userName)
         val lastMessage: TextView = itemView.findViewById(R.id.lastMsg)
@@ -49,16 +50,26 @@ class ChatsAdapter(private val usersDataSet: ArrayList<User>, private val messag
         if (usersDataSet.isNotEmpty()) {
             val current = usersDataSet[position]
             holder.userName.text = StringBuilder().append(current.name).append(" ").append(current.surname)
+            if (current.picture == "") {
                 holder.userNameFirstLetter.text = current.name.first().toString()
                 holder.userImage.setBackgroundDrawable(
                     StyleUtil.getRoundedShapeDrawable(
-                        holder.itemView.context.resources.getColor(R.color.white_70percent),
+                        StyleUtil.getAttributeColor(holder.userImage.context, android.R.attr.textColorPrimary),
                         200f
                     )
                 )
+            } else {
+                try {
+                    val image = ImageUtil.decodeFromFirebaseBase64(current.picture)
+                    holder.userImage.setImageBitmap(image)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
             holder.itemView.setOnClickListener {
                 showChatFragment(current)
             }
+
         }
         if (messagesDataSet.isNotEmpty()) {
             holder.lastMessage.text = StringBuilder().append(messagesDataSet[position].message).append(" ")
