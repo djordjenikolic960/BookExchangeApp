@@ -20,10 +20,13 @@ import kotlin.collections.ArrayList
 class BooksAdapter(private var dataSet: ArrayList<Book>) :
     RecyclerView.Adapter<BooksAdapter.BookHolder>() {
     private lateinit var fragmentHelper: FragmentHelper
+
     class BookHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.title)
         val text: TextView = itemView.findViewById(R.id.author)
         val image: ImageView = itemView.findViewById(R.id.image)
+        val description: TextView = itemView.findViewById(R.id.shortDescription)
+        val booksDivider: View = itemView.findViewById(R.id.booksDivider)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookHolder {
@@ -34,9 +37,13 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
     }
 
     override fun onBindViewHolder(holder: BookHolder, position: Int) {
-       val current = dataSet[position]
+        val current = dataSet[position]
         holder.title.text = current.title
         holder.text.text = current.author
+        holder.description.text = current.description
+        if (holder.adapterPosition == itemCount - 1) {
+            holder.booksDivider.visibility = View.GONE
+        }
         try {
             val image = ImageUtil.decodeFromFirebaseBase64(current.image)
             holder.image.setImageBitmap(image)
@@ -48,7 +55,7 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         }
     }
 
-    fun updateDataSet(newDataSet :ArrayList<Book>){
+    fun updateDataSet(newDataSet: ArrayList<Book>) {
         dataSet = newDataSet
         notifyDataSetChanged()
     }
