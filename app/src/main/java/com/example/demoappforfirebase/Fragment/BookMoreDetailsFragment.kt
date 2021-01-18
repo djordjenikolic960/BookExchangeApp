@@ -8,10 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import com.example.demoappforfirebase.Adapter.CommentsAdapter
 import com.example.demoappforfirebase.Model.*
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
+import com.example.demoappforfirebase.Utils.BitmapUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.android.material.tabs.TabLayout
@@ -42,7 +42,7 @@ class BookMoreDetailsFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHelpers()
+        createHelpers()
         val bookQuery: Query = database.child("Books").child(bookId)
 
         bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -86,7 +86,6 @@ class BookMoreDetailsFragment : BaseFragment() {
                                         }
                                     }
                                 }
-                                bookComments.adapter = CommentsAdapter(bookVM.bookComments, usersWhoCommented)
                             }
                         }
 
@@ -110,6 +109,16 @@ class BookMoreDetailsFragment : BaseFragment() {
         bookVM.book.observe(viewLifecycleOwner, { book ->
             if (book != null) {
                 moreDetailsProgressBar.visibility = View.GONE
+                BitmapUtil.updateHeartImageView(actionMore, book.usersThatLiked.contains(preferencesHelper.getUserId()))
+                actionMore.setOnClickListener {
+                    if (!book.usersThatLiked.contains(preferencesHelper.getUserId())) {
+                        book.usersThatLiked.add(preferencesHelper.getUserId())
+                    } else {
+                        book.usersThatLiked.remove(preferencesHelper.getUserId())
+                    }
+                    BitmapUtil.updateHeartImageView(actionMore, book.usersThatLiked.contains(preferencesHelper.getUserId()))
+                    database.child("Books").child(book.bookId).child("usersThatLiked").setValue(book.usersThatLiked)
+                }
                 tabLayout.selectTab(tabLayout.getTabAt(0))
                 if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
                     contactUserButtons.visibility = View.VISIBLE
