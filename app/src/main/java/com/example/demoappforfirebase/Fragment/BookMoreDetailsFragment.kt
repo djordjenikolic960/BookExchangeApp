@@ -14,12 +14,10 @@ import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
+import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.fragment_book_more_details.*
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookAuthor
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookImage
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookName
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookDescription
 import java.io.IOException
 
 class BookMoreDetailsFragment : BaseFragment() {
@@ -53,12 +51,12 @@ class BookMoreDetailsFragment : BaseFragment() {
                 try {
                     val image = decodeFromFirebaseBase64(book.image)
                     bookImage.setImageBitmap(image)
+                    Blurry.with(context).from(image).into(bookBackground)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-                bookName.text = book.title
+                bookTitle.text = book.title
                 bookAuthor.text = book.author
-                bookDescription.text = book.description
                 bookVM.book.value = book
             }
 
@@ -70,7 +68,7 @@ class BookMoreDetailsFragment : BaseFragment() {
         bookVM.book.observe(viewLifecycleOwner, { book ->
             if (book != null) {
                 moreDetailsProgressBar.visibility = View.GONE
-                bookMoreDetailsParent.visibility = View.VISIBLE
+                tabLayout.selectTab(tabLayout.getTabAt(0))
                 if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
                     contactUserButtons.visibility = View.VISIBLE
                     btnSeeUserProfile.setOnClickListener {
@@ -86,6 +84,18 @@ class BookMoreDetailsFragment : BaseFragment() {
                         fragmentHelper.replaceFragment(ChatFragment::class.java, bundle)
                     }
                 }
+            }
+        })
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                //todo proveriti koji je tab i uraditi nesto u vezi toga
+                bookDescription.text = bookVM.book.value?.description
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                bookDescription.text = bookVM.book.value?.description
             }
         })
     }
