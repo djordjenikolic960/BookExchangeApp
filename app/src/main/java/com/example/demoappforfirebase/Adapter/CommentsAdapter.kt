@@ -12,8 +12,8 @@ import com.example.demoappforfirebase.R
 import java.lang.StringBuilder
 
 class CommentsAdapter(
-    var dataSet: ArrayList<Comment>,
-    var usersWhoCommented: ArrayList<User>
+    var commentsDataSet: ArrayList<Comment>,
+    var usersDataSet: ArrayList<User>
 ) : RecyclerView.Adapter<CommentsAdapter.CommentsHolder>() {
     inner class CommentsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val commentUserImage: ImageView = itemView.findViewById(R.id.commentUserImage)
@@ -28,15 +28,14 @@ class CommentsAdapter(
     }
 
     override fun onBindViewHolder(holder: CommentsHolder, position: Int) {
-        val current = dataSet[position]
+        val current = commentsDataSet[position]
         //TODO set user image
-        val user = usersWhoCommented.first { it.id == current.userID }
-        val userName = StringBuilder().append(user.name).append(" ").append(user.surname).toString()
-        holder.commentUserName.text = userName
+        val user = usersDataSet.first { it.id == current.userID }
+        holder.commentUserName.text = StringBuilder().append(user.name).append(" ").append(user.surname).toString()
         holder.commentText.text = current.comment
     }
 
     override fun getItemCount(): Int {
-        return dataSet.size
+        return commentsDataSet.size
     }
 }

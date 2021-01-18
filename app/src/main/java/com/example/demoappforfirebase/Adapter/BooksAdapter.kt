@@ -34,8 +34,8 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         val text: TextView = itemView.findViewById(R.id.author)
         val image: ImageView = itemView.findViewById(R.id.image)
         val description: TextView = itemView.findViewById(R.id.shortDescription)
-        val booksDivider: View = itemView.findViewById(R.id.booksDivider)
-        val likeBook: ImageView = itemView.findViewById(R.id.likeBook)
+        val divider: View = itemView.findViewById(R.id.booksDivider)
+        val like: ImageView = itemView.findViewById(R.id.likeBook)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookHolder {
@@ -52,25 +52,22 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         holder.text.text = current.author
         holder.description.text = current.description
         if (holder.adapterPosition == itemCount - 1) {
-            holder.booksDivider.visibility = View.GONE
+            holder.divider.visibility = View.GONE
         }
-        if (current.usersThatLiked.contains(preferencesHelper.getUserId())) {
-            likeBook(holder)
-        }
+        updateBook(holder, current.usersThatLiked.contains(preferencesHelper.getUserId()))
         try {
             val image = ImageUtil.decodeFromFirebaseBase64(current.image)
             holder.image.setImageBitmap(image)
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        holder.likeBook.setOnClickListener {
+        holder.like.setOnClickListener {
             if (!current.usersThatLiked.contains(preferencesHelper.getUserId())) {
-                likeBook(holder)
-                current.usersThatLiked.add(PreferencesHelper(holder.itemView.context).getUserId())
+                current.usersThatLiked.add(preferencesHelper.getUserId())
             } else {
-                unlikeBook(holder)
-                current.usersThatLiked.remove(PreferencesHelper(holder.itemView.context).getUserId())
+                current.usersThatLiked.remove(preferencesHelper.getUserId())
             }
+            updateBook(holder, current.usersThatLiked.contains(preferencesHelper.getUserId()))
             database.child("Books").child(current.bookId).child("usersThatLiked").setValue(current.usersThatLiked)
         }
         holder.itemView.setOnClickListener {
@@ -78,15 +75,15 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         }
     }
 
-    private fun unlikeBook(holder: BookHolder) {
-        holder.likeBook.setImageDrawable(AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart))
-    }
-
-    private fun likeBook(holder: BookHolder) {
-        val unwrappedDrawable = AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart_full)
-        val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!).mutate()
-        DrawableCompat.setTint(wrappedDrawable, Color.RED)
-        holder.likeBook.setImageDrawable(wrappedDrawable)
+    private fun updateBook(holder: BookHolder, update: Boolean) {
+        if (update) {
+            holder.like.setImageDrawable(AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart))
+        } else {
+            val unwrappedDrawable = AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart_full)
+            val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!).mutate()
+            DrawableCompat.setTint(wrappedDrawable, Color.RED)
+            holder.like.setImageDrawable(wrappedDrawable)
+        }
     }
 
     fun updateDataSet(newDataSet: ArrayList<Book>) {
