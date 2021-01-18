@@ -64,13 +64,7 @@ class ChatListFragment : BaseFragment() {
                                     }
                                     if (users.isNotEmpty()) {
                                         for (user in users) {
-                                            var id = ""
-                                            val stringBuilder = StringBuilder()
-                                            id = if (preferencesHelper.getUserId() > user.id) {
-                                                stringBuilder.append(preferencesHelper.getUserId()).append(user.id).toString()
-                                            } else {
-                                                stringBuilder.append(user.id).append(preferencesHelper.getUserId()).toString()
-                                            }
+                                            val id = chatVM.recreateChatIdWithUser(user.id)
                                             val messages = arrayListOf<Message>()
                                             val chatQuery: Query =
                                                 database.child("Chats").child(id)

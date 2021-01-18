@@ -19,37 +19,6 @@ import com.example.demoappforfirebase.R
 import kotlinx.android.synthetic.main.view_content_main.*
 
 object StyleUtil {
-    fun stylize(activity: Activity) {
-        stylizeNavigationBar(activity)
-        stylizeStatusBarElements(activity)
-    }
-
-    private fun setScrollColor(context: Context, id: Int) {
-        if (id != 0) {
-            val androidGlow = ContextCompat.getDrawable(context, id)
-            androidGlow!!.setColorFilter(
-                getAttributeColor(context, R.attr.colorPrimary),
-                PorterDuff.Mode.SRC_IN
-            )
-        }
-    }
-
-    private fun stylizeNavigationBar(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.window.decorView.systemUiVisibility = 0
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                activity.window.decorView.systemUiVisibility = (activity.window.decorView.systemUiVisibility
-                        or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
-            }
-        }
-    }
-
-    private fun stylizeStatusBarElements(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.window.decorView.systemUiVisibility = 0
-        }
-    }
-
     fun stylizeStatusBar(activity: Activity, transparent: Boolean) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (transparent) {

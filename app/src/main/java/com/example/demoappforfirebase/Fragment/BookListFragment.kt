@@ -35,7 +35,7 @@ class BookListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHelpers()
+        createHelpers()
         bookRecycler = booksRecycler
         bookRecycler.layoutManager = LinearLayoutManager(requireContext())
         val bookQuery = database.child("Books")
@@ -110,7 +110,7 @@ class BookListFragment : BaseFragment() {
         database.addValueEventListener(databaseListener)
     }
 
-    private fun setHelpers() {
+    private fun createHelpers() {
         fragmentHelper = FragmentHelper(requireActivity())
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference
