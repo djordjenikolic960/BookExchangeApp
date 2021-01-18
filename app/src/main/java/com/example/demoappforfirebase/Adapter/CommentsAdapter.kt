@@ -30,8 +30,8 @@ class CommentsAdapter(
     override fun onBindViewHolder(holder: CommentsHolder, position: Int) {
         val current = commentsDataSet[position]
         //TODO set user image
-        val user = usersDataSet.first { it.id == current.userID }
-        holder.commentUserName.text = StringBuilder().append(user.name).append(" ").append(user.surname).toString()
+        val user = usersDataSet.find { it.id == current.userID }
+        holder.commentUserName.text = StringBuilder().append(user?.name).append(" ").append(user?.surname).toString()
         holder.commentText.text = current.comment
     }
 

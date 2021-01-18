@@ -1,20 +1,18 @@
 package com.example.demoappforfirebase.Adapter
 
-import android.graphics.*
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Fragment.BookMoreDetailsFragment
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.R
+import com.example.demoappforfirebase.Utils.BitmapUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.DatabaseReference
@@ -54,7 +52,7 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         if (holder.adapterPosition == itemCount - 1) {
             holder.divider.visibility = View.GONE
         }
-        updateBook(holder, current.usersThatLiked.contains(preferencesHelper.getUserId()))
+        BitmapUtil.updateHeartImageView(holder.like, current.usersThatLiked.contains(preferencesHelper.getUserId()))
         try {
             val image = ImageUtil.decodeFromFirebaseBase64(current.image)
             holder.image.setImageBitmap(image)
@@ -67,22 +65,11 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
             } else {
                 current.usersThatLiked.remove(preferencesHelper.getUserId())
             }
-            updateBook(holder, current.usersThatLiked.contains(preferencesHelper.getUserId()))
+            BitmapUtil.updateHeartImageView(holder.like, current.usersThatLiked.contains(preferencesHelper.getUserId()))
             database.child("Books").child(current.bookId).child("usersThatLiked").setValue(current.usersThatLiked)
         }
         holder.itemView.setOnClickListener {
             showBookDetailsFragment(current)
-        }
-    }
-
-    private fun updateBook(holder: BookHolder, update: Boolean) {
-        if (update) {
-            holder.like.setImageDrawable(AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart))
-        } else {
-            val unwrappedDrawable = AppCompatResources.getDrawable(holder.itemView.context, R.drawable.ic_heart_full)
-            val wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable!!).mutate()
-            DrawableCompat.setTint(wrappedDrawable, Color.RED)
-            holder.like.setImageDrawable(wrappedDrawable)
         }
     }
 

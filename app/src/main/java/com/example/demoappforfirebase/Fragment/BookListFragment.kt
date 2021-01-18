@@ -38,21 +38,7 @@ class BookListFragment : BaseFragment() {
         createHelpers()
         bookRecycler = booksRecycler
         bookRecycler.layoutManager = LinearLayoutManager(requireContext())
-        val bookQuery = database.child("Books")
-        bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (postSnapshot in snapshot.children) {
-                    val book: Book = postSnapshot.getValue(Book::class.java)!!
-                    bookVM.addBook(book)
-                }
-                bookVM.currentBooks.value = bookVM.oldBooks
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                AnalyticsUtil.logError(requireContext(), error.toString())
-            }
-
-        })
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {

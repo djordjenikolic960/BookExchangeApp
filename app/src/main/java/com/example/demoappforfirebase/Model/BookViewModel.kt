@@ -14,7 +14,7 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     var sortType = MutableLiveData<Int>()
     var currentCategories = MutableLiveData<ArrayList<Int>>()
     private val preferencesHelper = PreferencesHelper(application)
-    var bookComments = ArrayList<Comment>()
+    var bookComments: ArrayList<Comment>? = null
 
     init {
         sortType.value = preferencesHelper.getSortType()
@@ -33,7 +33,9 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addBook(book: Book) {
-        if (!oldBooks.contains(book)) {
+        val keys = arrayListOf<String>()
+        oldBooks.forEach { keys.add(it.bookId) }
+        if (!keys.contains(book.bookId)) {
             oldBooks.add(book)
         }
     }
