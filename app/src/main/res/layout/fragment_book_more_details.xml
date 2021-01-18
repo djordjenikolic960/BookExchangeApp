@@ -166,5 +166,10 @@
                     app:backgroundTint="@null" />
             </LinearLayout>
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bookComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+    </LinearLayout>
+</FrameLayout>

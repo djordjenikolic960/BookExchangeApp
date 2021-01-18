@@ -11,20 +11,13 @@ data class Book(
     var image: String,
     var description: String,
     var categories: ArrayList<Int>,
-    var timeStamp: Long
+    var timeStamp: Long,
+    var comments: ArrayList<Comment>,
+    var usersThatLiked: ArrayList<String>
 ) {
-    constructor() : this("", "", "", "", "", "", ArrayList(), 0L)
+    constructor() : this("", "", "", "", "", "", ArrayList(), 0L, ArrayList(), ArrayList())
 }
 
-enum class Categories{
-    ACTION_AND_ADVENTURE,
-    CLASSICS,
-    MYSTERY,
-    FANTASY,
-    HORROR,
-    ROMANCE,
-    SCIENCE_FICTION,
-    THRILLER,
-    HISTORY,
-    POETRY
+class Comment(var userID: String, var comment: String, var timeStamp: Long) {
+    constructor() : this("", "", 0L)
 }

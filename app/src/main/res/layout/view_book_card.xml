@@ -27,31 +27,49 @@
                 android:scaleType="centerCrop" />
         </androidx.cardview.widget.CardView>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/title"
+            <LinearLayout
+                android:id="@+id/authorAndTittleLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="6dp"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="22sp" />
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignEnd="@+id/likeBook"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/author"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="6dp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp" />
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:id="@+id/author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/likeBook"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_heart"/>
 
             <TextView
                 android:id="@+id/shortDescription"
@@ -60,9 +78,10 @@
                 android:layout_margin="6dp"
                 android:ellipsize="end"
                 android:maxLines="3"
+                android:layout_below="@+id/authorAndTittleLayout"
                 android:textColor="?android:attr/textColorSecondary"
                 android:textSize="16sp" />
-        </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 
     <View
