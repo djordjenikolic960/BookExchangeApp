@@ -76,7 +76,7 @@ class BookListFragment : BaseFragment() {
         bookVM.currentBooks.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 if (booksAdapter == null) {
-                    booksAdapter = BooksAdapter(bookVM.currentBooks.value!!)
+                    booksAdapter = BooksAdapter(getSortedBooks(bookVM.currentBooks.value!!, bookVM.sortType.value!!))
                     bookRecycler.adapter = booksAdapter
                 } else {
                     booksAdapter!!.updateDataSet(it)
@@ -87,16 +87,7 @@ class BookListFragment : BaseFragment() {
         })
 
         bookVM.sortType.observe(viewLifecycleOwner, {
-            val books = bookVM.oldBooks
-            books.sortWith { book1, book2 ->
-                when (it) {
-                    MainActivity.SortType.NEWER_FIRST.ordinal -> book2.timeStamp.compareTo(book1.timeStamp)
-                    MainActivity.SortType.OLDER_FIRST.ordinal -> book1.timeStamp.compareTo(book2.timeStamp)
-                    MainActivity.SortType.A_TO_Z.ordinal -> book1.title.compareTo(book2.title)
-                    else -> book2.title.compareTo(book1.title)
-                }
-            }
-            bookVM.currentBooks.value = books
+            bookVM.currentBooks.value = getSortedBooks(bookVM.oldBooks, it)
         })
 
         bookVM.currentCategories.observe(viewLifecycleOwner, {
@@ -114,5 +105,17 @@ class BookListFragment : BaseFragment() {
         fragmentHelper = FragmentHelper(requireActivity())
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference
+    }
+
+    private fun getSortedBooks(books: ArrayList<Book>, sortingType: Int): ArrayList<Book> {
+        books.sortWith { book1, book2 ->
+            when (sortingType) {
+                MainActivity.SortType.NEWER_FIRST.ordinal -> book2.timeStamp.compareTo(book1.timeStamp)
+                MainActivity.SortType.OLDER_FIRST.ordinal -> book1.timeStamp.compareTo(book2.timeStamp)
+                MainActivity.SortType.A_TO_Z.ordinal -> book1.title.compareTo(book2.title)
+                else -> book2.title.compareTo(book1.title)
+            }
+        }
+        return books
     }
 }
