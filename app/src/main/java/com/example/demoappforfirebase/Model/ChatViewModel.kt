@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.DataSnapshot
+import java.lang.StringBuilder
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
     var messages = MutableLiveData<ArrayList<Message>>()
@@ -34,6 +35,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
             }
+        }
+    }
+
+    fun recreateChatIdWithUser(user: String): String {
+        return if (preferencesHelper.getUserId() > user) {
+            StringBuilder().append(preferencesHelper.getUserId()).append(user).toString()
+        } else {
+            StringBuilder().append(user).append(preferencesHelper.getUserId()).toString()
         }
     }
 }

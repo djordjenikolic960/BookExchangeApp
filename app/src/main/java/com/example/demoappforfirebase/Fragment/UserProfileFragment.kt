@@ -42,7 +42,7 @@ class UserProfileFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHelpers()
+        createHelpers()
         currentProfileUserId = currentProfileUserId ?: preferencesHelper.getUserId()
         userVM.isMyProfile = currentProfileUserId.equals(preferencesHelper.getUserId())
         setUserProfile()
@@ -123,7 +123,7 @@ class UserProfileFragment : BaseFragment() {
         })
     }
 
-    private fun setHelpers() {
+    private fun createHelpers() {
         database = FirebaseDatabase.getInstance().reference
         preferencesHelper = PreferencesHelper(requireContext())
         userVM = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)

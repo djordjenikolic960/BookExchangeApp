@@ -88,11 +88,7 @@ class ChatFragment : BaseFragment() {
                         for (postSnapshot in dataSnapshot.children) {
                             if (postSnapshot.key == "Chats") {
                                 for (snapShot in postSnapshot.children) {
-                                    val id = if (preferencesHelper.getUserId() > chatVM.otherUser!!.id) {
-                                        StringBuilder().append(preferencesHelper.getUserId()).append(chatVM.otherUser!!.id).toString()
-                                    } else {
-                                        StringBuilder().append(chatVM.otherUser!!.id).append(preferencesHelper.getUserId()).toString()
-                                    }
+                                    val id = chatVM.recreateChatIdWithUser(chatVM.otherUser!!.id)
                                     if (snapShot.key == id) {
                                         for (message in snapShot.children) {
                                             val msg: Message = message.getValue(Message::class.java)!!
@@ -161,12 +157,7 @@ class ChatFragment : BaseFragment() {
     }
 
     private fun updateMessageStatus(message: Message) {
-        val stringBuilder = StringBuilder()
-        val id = if (preferencesHelper.getUserId() > otherUserId) {
-            stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
-        } else {
-            stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
-        }
+        val id = chatVM.recreateChatIdWithUser(otherUserId)
         message.isRead = true
         if (message.author != preferencesHelper.getUserId()) {
             database.child("Chats").child(id).child(message.id).setValue(message)

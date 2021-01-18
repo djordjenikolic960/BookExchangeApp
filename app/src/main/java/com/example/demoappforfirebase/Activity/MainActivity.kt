@@ -43,7 +43,6 @@ import kotlinx.android.synthetic.main.view_bottom_toolbar.*
 import kotlinx.android.synthetic.main.view_content_main.*
 import kotlinx.android.synthetic.main.view_content_main.fragment_container
 import kotlinx.android.synthetic.main.view_content_sign.*
-import java.lang.StringBuilder
 
 
 class MainActivity : AppCompatActivity() {
@@ -118,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                     chatVM.updateIdsOfUsersThatOwnerChatsWith(dataSnapshot)
                     if (chatVM.idsOfUserThatOwnerChatsWith.isNotEmpty()) {
                         for (user in chatVM.idsOfUserThatOwnerChatsWith) {
-                            val id = recreateChatIdWithUser(user)
+                            val id = chatVM.recreateChatIdWithUser(user)
                             val lastMessages = arrayListOf<Message>()
                             val allMessages = arrayListOf<Message>()
                             val databaseListener = object : ValueEventListener {
@@ -167,14 +166,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         database.addValueEventListener(databaseListener)
-    }
-
-    fun recreateChatIdWithUser(user: String): String {
-        return if (preferencesHelper.getUserId() > user) {
-            StringBuilder().append(preferencesHelper.getUserId()).append(user).toString()
-        } else {
-            StringBuilder().append(user).append(preferencesHelper.getUserId()).toString()
-        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

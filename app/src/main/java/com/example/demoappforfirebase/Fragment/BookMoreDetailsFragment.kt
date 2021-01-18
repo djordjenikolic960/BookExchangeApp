@@ -44,7 +44,7 @@ class BookMoreDetailsFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHelpers()
+        createHelpers()
         val bookQuery: Query =
             database.child("Books").child(bookId)
         bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -90,7 +90,7 @@ class BookMoreDetailsFragment : BaseFragment() {
         })
     }
 
-    private fun setHelpers() {
+    private fun createHelpers() {
         fragmentHelper = FragmentHelper(requireActivity())
         preferencesHelper = PreferencesHelper(requireContext())
         database = FirebaseDatabase.getInstance().reference
