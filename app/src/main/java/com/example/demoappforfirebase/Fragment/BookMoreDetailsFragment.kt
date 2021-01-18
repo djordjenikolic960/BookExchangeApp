@@ -14,7 +14,9 @@ import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
+import com.google.android.material.tabs.TabLayout
 import com.google.firebase.database.*
+import jp.wasabeef.blurry.Blurry
 import kotlinx.android.synthetic.main.fragment_book_more_details.*
 import java.io.IOException
 
@@ -42,16 +44,18 @@ class BookMoreDetailsFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
         val bookQuery: Query = database.child("Books").child(bookId)
+
         bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val book = dataSnapshot.getValue(Book::class.java)!!
                 try {
                     val image = decodeFromFirebaseBase64(book.image)
                     bookImage.setImageBitmap(image)
+                    Blurry.with(context).from(image).into(bookBackground)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-                bookName.text = book.title
+                bookTitle.text = book.title
                 bookAuthor.text = book.author
                 bookDescription.text = book.description
                 bookVM.bookComments = book.comments ?: arrayListOf()
@@ -106,7 +110,7 @@ class BookMoreDetailsFragment : BaseFragment() {
         bookVM.book.observe(viewLifecycleOwner, { book ->
             if (book != null) {
                 moreDetailsProgressBar.visibility = View.GONE
-                bookMoreDetailsParent.visibility = View.VISIBLE
+                tabLayout.selectTab(tabLayout.getTabAt(0))
                 if (bookVM.book.value?.ownerId != preferencesHelper.getUserId()) {
                     contactUserButtons.visibility = View.VISIBLE
                     btnSeeUserProfile.setOnClickListener {
@@ -124,6 +128,18 @@ class BookMoreDetailsFragment : BaseFragment() {
                 }
             }
         })
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                //todo proveriti koji je tab i uraditi nesto u vezi toga
+                bookDescription.text = bookVM.book.value?.description
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                bookDescription.text = bookVM.book.value?.description
+            }
+        })
     }
 
     private fun addToDatabase() {//TODO add comment to databse
@@ -132,7 +148,7 @@ class BookMoreDetailsFragment : BaseFragment() {
         database.child("Books").child(bookVM.book.value!!.bookId).child("comments").setValue(bookVM.book.value)
     }
 
-    private fun setHelpers() {
+    private fun createHelpers() {
         fragmentHelper = FragmentHelper(requireActivity())
         preferencesHelper = PreferencesHelper(requireContext())
         database = FirebaseDatabase.getInstance().reference

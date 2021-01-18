@@ -36,10 +36,7 @@ class BookFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        fragmentHelper = FragmentHelper(requireActivity())
-        preferencesHelper = PreferencesHelper(requireContext())
-        bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
-        database = FirebaseDatabase.getInstance().reference
+        createHelpers()
         for (index in 0 until categoryTags.childCount) {
             val child = categoryTags.getChildAt(index)
             (child as TextView).text = requireContext().resources.getStringArray(R.array.categories)[index]
@@ -86,5 +83,12 @@ class BookFragment : BaseFragment() {
             fragmentHelper.replaceFragment(BookListFragment::class.java)
             bookVM.imageUrl = ""
         }
+    }
+
+    private fun createHelpers() {
+        fragmentHelper = FragmentHelper(requireActivity())
+        preferencesHelper = PreferencesHelper(requireContext())
+        bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
+        database = FirebaseDatabase.getInstance().reference
     }
 }

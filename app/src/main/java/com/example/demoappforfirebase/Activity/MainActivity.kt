@@ -4,14 +4,12 @@ package com.example.demoappforfirebase
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Base64
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.Menu
@@ -41,12 +39,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_book.*
-import kotlinx.android.synthetic.main.fragment_chat_list.*
-import kotlinx.android.synthetic.main.fragment_user_profile.*
 import kotlinx.android.synthetic.main.view_bottom_toolbar.*
 import kotlinx.android.synthetic.main.view_content_main.*
-import java.io.ByteArrayOutputStream
-import java.lang.StringBuilder
+import kotlinx.android.synthetic.main.view_content_main.fragment_container
+import kotlinx.android.synthetic.main.view_content_sign.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -57,7 +53,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferencesHelper: PreferencesHelper
     private lateinit var userVM: UserViewModel
     private lateinit var chatVM: ChatViewModel
-    private var chatId = ""
 
     enum class SortType { NEWER_FIRST, OLDER_FIRST, A_TO_Z, Z_TO_A }
 
@@ -73,38 +68,61 @@ class MainActivity : AppCompatActivity() {
             invalidateOptionsMenu()
         })
         updateChatIndicator()
+        getUser()
+    }
+
+    private fun initHelpers() {
+        fragmentHelper = FragmentHelper(this)
+        bookVM = ViewModelProvider(this).get(BookViewModel::class.java)
+        userVM = ViewModelProvider(this).get(UserViewModel::class.java)
+        chatVM = ViewModelProvider(this).get(ChatViewModel::class.java)
+        preferencesHelper = PreferencesHelper(this)
+        auth = Firebase.auth
+        database = FirebaseDatabase.getInstance().reference
+    }
+
+    private fun setToolbarListeners() {
+        toolbarItemAdd.setOnClickListener {
+            fragmentHelper.replaceFragment(BookFragment::class.java)
+        }
+        addLayout.setOnClickListener {
+            fragmentHelper.replaceFragment(BookFragment::class.java)
+        }
+        toolbarItemProfile.setOnClickListener {
+            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
+        }
+        profileLayout.setOnClickListener {
+            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
+        }
+    }
+
+    private fun getUser() {
+        val userQuery = database.child("Users").child(preferencesHelper.getUserId())
+        userQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                userVM.currentUser = dataSnapshot.getValue(User::class.java)!!
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                AnalyticsUtil.logError(this@MainActivity, error.toString())
+            }
+        })
     }
 
     private fun updateChatIndicator() {
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    val chattingUsersId = arrayListOf<String>()
-                    for (postSnapshot in dataSnapshot.children) {
-                        if (postSnapshot.key == "Chats") {
-                            for (snapShot in postSnapshot.children) {
-                                if (preferencesHelper.getUserId().let { snapShot.key?.contains(it) }!!) {
-                                    chatId = snapShot.key.toString()
-                                    chatId = chatId.replace(preferencesHelper.getUserId(), "")
-                                    chattingUsersId.add(chatId)
-                                }
-                            }
-                        }
-                    }
-                    if (chattingUsersId.isNotEmpty()) {
-                        for (user in chattingUsersId) {
-                            var id = ""
-                            val stringBuilder = StringBuilder()
-                            id = if (preferencesHelper.getUserId() > user) {
-                                stringBuilder.append(preferencesHelper.getUserId()).append(user).toString()
-                            } else {
-                                stringBuilder.append(chatId).append(preferencesHelper.getUserId()).toString()
-                            }
+                    chatVM.idsOfUserThatOwnerChatsWith.clear()
+                    chatVM.updateIdsOfUsersThatOwnerChatsWith(dataSnapshot)
+                    if (chatVM.idsOfUserThatOwnerChatsWith.isNotEmpty()) {
+                        for (user in chatVM.idsOfUserThatOwnerChatsWith) {
+                            val id = chatVM.recreateChatIdWithUser(user)
                             val lastMessages = arrayListOf<Message>()
                             val allMessages = arrayListOf<Message>()
                             val databaseListener = object : ValueEventListener {
                                 override fun onDataChange(snapshot: DataSnapshot) {
-                                    for (postSnapshot in dataSnapshot.children) {
+                                    for (postSnapshot in snapshot.children) {
                                         if (postSnapshot.key == "Chats") {
                                             for (chat in postSnapshot.children) {
                                                 if (chat.key == id) {
@@ -150,31 +168,6 @@ class MainActivity : AppCompatActivity() {
         database.addValueEventListener(databaseListener)
     }
 
-    private fun initHelpers() {
-        fragmentHelper = FragmentHelper(this)
-        bookVM = ViewModelProvider(this).get(BookViewModel::class.java)
-        userVM = ViewModelProvider(this).get(UserViewModel::class.java)
-        chatVM = ViewModelProvider(this).get(ChatViewModel::class.java)
-        preferencesHelper = PreferencesHelper(this)
-        auth = Firebase.auth
-        database = FirebaseDatabase.getInstance().reference
-    }
-
-    private fun setToolbarListeners() {
-        toolbarItemAdd.setOnClickListener {
-            fragmentHelper.replaceFragment(BookFragment::class.java)
-        }
-        addLayout.setOnClickListener {
-            fragmentHelper.replaceFragment(BookFragment::class.java)
-        }
-        toolbarItemProfile.setOnClickListener {
-            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
-        }
-        profileLayout.setOnClickListener {
-            fragmentHelper.replaceFragment(UserProfileFragment::class.java)
-        }
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -211,9 +204,9 @@ class MainActivity : AppCompatActivity() {
                     val bitmap = BitmapFactory.decodeFile(ImageUtil.pathForImage, bmOptions)
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
-                        bookVM.imageUrl = bitmap?.let { encodeBitmap(it) }
+                        bookVM.imageUrl = bitmap?.let { ImageUtil.encodeBitmap(it) }
                     } else if (fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)) {
-                        userVM.imageUrl.value = bitmap?.let { encodeBitmap(it) }
+                        userVM.imageUrl.value = bitmap?.let { ImageUtil.encodeBitmap(it) }
                     }
 
                 } else if (resultCode == RESULT_CANCELED) {
@@ -226,21 +219,16 @@ class MainActivity : AppCompatActivity() {
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
                     }
-                    bookVM.imageUrl = bitmap?.let { encodeBitmap(it) }
+                    bookVM.imageUrl = bitmap?.let { ImageUtil.encodeBitmap(it) }
                 }
             }
         }
     }
 
-    private fun encodeBitmap(bitmap: Bitmap): String {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.subtitle = null
+        chatLayout.isVisible = fragmentHelper.isFragmentVisible(ChatFragment::class.java)
         if (fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
             fragment_container.setPadding(0, 0, 0, resources.getDimension(R.dimen.bottom_toolbar_height).toInt())
         } else {

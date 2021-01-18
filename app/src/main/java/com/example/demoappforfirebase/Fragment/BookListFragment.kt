@@ -35,10 +35,24 @@ class BookListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHelpers()
+        createHelpers()
         bookRecycler = booksRecycler
         bookRecycler.layoutManager = LinearLayoutManager(requireContext())
+        val bookQuery = database.child("Books")
+        bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (postSnapshot in snapshot.children) {
+                    val book: Book = postSnapshot.getValue(Book::class.java)!!
+                    bookVM.addBook(book)
+                }
+                bookVM.currentBooks.value = bookVM.oldBooks
+            }
 
+            override fun onCancelled(error: DatabaseError) {
+                AnalyticsUtil.logError(requireContext(), error.toString())
+            }
+
+        })
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -96,7 +110,7 @@ class BookListFragment : BaseFragment() {
         database.addValueEventListener(databaseListener)
     }
 
-    private fun setHelpers() {
+    private fun createHelpers() {
         fragmentHelper = FragmentHelper(requireActivity())
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference

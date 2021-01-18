@@ -5,9 +5,14 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
 import androidx.lifecycle.ViewModelProvider
+import com.ascendik.diary.util.ImageUtil
 import com.example.demoappforfirebase.Model.ChatViewModel
 import com.example.demoappforfirebase.Model.Message
+import com.example.demoappforfirebase.Model.User
+import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
@@ -22,8 +27,10 @@ import java.lang.StringBuilder
 class ChatFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
     private lateinit var chatVM: ChatViewModel
+    private lateinit var userVM: UserViewModel
+    private lateinit var buttonSend: ImageView
+    private lateinit var messageToSend: EditText
     private var otherUserId: String = ""
-    private var id = ""
     private var bookIdIfFromBookMoreDetails = ""
     private var openedFragmentFrom = ""
     private lateinit var preferencesHelper: PreferencesHelper
@@ -40,6 +47,7 @@ class ChatFragment : BaseFragment() {
     }
 
     override fun onBackPressed() {
+        chatVM.clearAll()
         when (openedFragmentFrom) {
             ChatListFragment::class.simpleName -> fragmentHelper.replaceFragment(ChatListFragment::class.java)
             BookMoreDetailsFragment::class.simpleName -> {
@@ -55,11 +63,15 @@ class ChatFragment : BaseFragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        StyleUtil.hideSoftKeyboard(messageToSend)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
-        preferencesHelper = PreferencesHelper(requireContext())
-        fragmentHelper = FragmentHelper(requireActivity())
+        createHelpers()
+        getOtherUser()
         chatVM.messages.observe(viewLifecycleOwner, {
             chat.removeAllViews()
             for (message in it) {
@@ -68,27 +80,23 @@ class ChatFragment : BaseFragment() {
             }
         })
 
-        database = FirebaseDatabase.getInstance().reference
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    val messages = arrayListOf<Message>()
-                    for (postSnapshot in dataSnapshot.children) {
-                        if (postSnapshot.key == "Chats") {
-                            for (snapShot in postSnapshot.children) {
-                                val stringBuilder = StringBuilder()
-                                id = if (preferencesHelper.getUserId() > otherUserId) {
-                                    stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
-                                } else {
-                                    stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
-                                }
-                                if (snapShot.key == id) {
-                                    for (message in snapShot.children) {
-                                        val msg: Message = message.getValue(Message::class.java)!!
-                                        messages.add(msg)
+                if (fragmentHelper.isFragmentVisible(ChatFragment::class.java)) {
+                    if (dataSnapshot.exists()) {
+                        val messages = arrayListOf<Message>()
+                        for (postSnapshot in dataSnapshot.children) {
+                            if (postSnapshot.key == "Chats") {
+                                for (snapShot in postSnapshot.children) {
+                                    val id = chatVM.recreateChatIdWithUser(chatVM.otherUser!!.id)
+                                    if (snapShot.key == id) {
+                                        for (message in snapShot.children) {
+                                            val msg: Message = message.getValue(Message::class.java)!!
+                                            messages.add(msg)
+                                        }
                                     }
+                                    chatVM.messages.value = messages
                                 }
-                                chatVM.messages.value = messages
                             }
                         }
                     }
@@ -100,30 +108,56 @@ class ChatFragment : BaseFragment() {
             }
         }
         database.addValueEventListener(databaseListener)
-        btnSend.setOnClickListener {
+        buttonSend.setOnClickListener {
             val stringBuilder = StringBuilder()
-            id = if (preferencesHelper.getUserId() > otherUserId) {
+            val id = if (preferencesHelper.getUserId() > otherUserId) {
                 stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
             } else {
                 stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
             }
             val generatedId: String = database.push().key!!
             database.child("Chats").child(id).child(generatedId)
-                .setValue(Message(generatedId, preferencesHelper.getUserId(), message.editableText.toString(), System.currentTimeMillis(), false))
-            message.editableText.clear()
+                .setValue(
+                    Message(
+                        generatedId,
+                        preferencesHelper.getUserId(),
+                        messageToSend.editableText.toString(),
+                        System.currentTimeMillis(),
+                        false
+                    )
+                )
+            messageToSend.editableText.clear()
         }
-        message.setOnFocusChangeListener { _, hasFocus ->
+        messageToSend.setOnFocusChangeListener { _, hasFocus ->
             StyleUtil.stylizeStatusBar(requireActivity(), !hasFocus)
         }
     }
 
+    private fun getOtherUser() {
+        val otherUserQuery = database.child("Users").child(otherUserId)
+        otherUserQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                chatVM.otherUser = dataSnapshot.getValue(User::class.java)!!
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                AnalyticsUtil.logError(requireContext(), error.toString())
+            }
+        })
+    }
+
+    private fun createHelpers() {
+        buttonSend = activity?.findViewById(R.id.btnSend)!!
+        messageToSend = activity?.findViewById(R.id.sendMessage)!!
+        chatVM = ViewModelProvider(requireActivity()).get(ChatViewModel::class.java)
+        userVM = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
+        preferencesHelper = PreferencesHelper(requireContext())
+        fragmentHelper = FragmentHelper(requireActivity())
+        database = FirebaseDatabase.getInstance().reference
+    }
+
     private fun updateMessageStatus(message: Message) {
-        val stringBuilder = StringBuilder()
-        id = if (preferencesHelper.getUserId() > otherUserId) {
-            stringBuilder.append(preferencesHelper.getUserId()).append(otherUserId).toString()
-        } else {
-            stringBuilder.append(otherUserId).append(preferencesHelper.getUserId()).toString()
-        }
+        val id = chatVM.recreateChatIdWithUser(otherUserId)
         message.isRead = true
         if (message.author != preferencesHelper.getUserId()) {
             database.child("Chats").child(id).child(message.id).setValue(message)
@@ -135,24 +169,27 @@ class ChatFragment : BaseFragment() {
         val nullParent: ViewGroup? = null
         val view: View = inflater.inflate(R.layout.view_chat_message, nullParent)
         if (message.author == preferencesHelper.getUserId()) {
-            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            if (userVM.currentUser?.picture == "") {
+                view.userNameFirstLetter.text = userVM.currentUser?.name?.first()?.toUpperCase().toString()
+            } else {
+                val image = ImageUtil.decodeFromFirebaseBase64(userVM.currentUser?.picture)
+                view.userImage.setImageBitmap(image)
+            }
             view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.my_message_color))
             view.messageLayout.gravity = Gravity.END
             val imageLayout = view.imageLayout
             view.messageLayout.removeView(view.imageLayout)
             view.messageLayout.addView(imageLayout)
         } else {
-            //todo pribaviti korisnika, proveriti da li ima sliku ako ima setovati nju, ako nema prvo slovo njegovog imena
+            if (chatVM.otherUser?.picture == "") {
+                view.userNameFirstLetter.text = chatVM.otherUser?.name?.first()?.toUpperCase().toString()
+            } else {
+                val image = ImageUtil.decodeFromFirebaseBase64(chatVM.otherUser?.picture)
+                view.userImage.setImageBitmap(image)
+            }
             view.messageCard.setCardBackgroundColor(StyleUtil.getAttributeColor(requireContext(), R.attr.other_message_color))
             view.messageLayout.gravity = Gravity.START
         }
-        view.userNameFirstLetter.text = "M"
-        view.userImage.setBackgroundDrawable(
-            StyleUtil.getRoundedShapeDrawable(
-                requireContext().resources.getColor(R.color.white_70percent),
-                200f
-            )
-        )
         view.message.text = message.message
         return view
     }

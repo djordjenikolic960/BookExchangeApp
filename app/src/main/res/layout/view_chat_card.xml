@@ -30,10 +30,10 @@
                 android:id="@+id/userNameFirstLetter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textAllCaps="true"
                 android:layout_gravity="center"
-                android:textSize="20sp"/>
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
         </FrameLayout>
 
         <LinearLayout
@@ -46,14 +46,15 @@
                 android:id="@+id/userName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/lastMsg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:singleLine="true"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
