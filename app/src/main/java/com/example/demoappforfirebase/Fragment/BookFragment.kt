@@ -18,6 +18,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.fragment_book.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class BookFragment : BaseFragment() {
     private lateinit var database: DatabaseReference
@@ -43,18 +44,18 @@ class BookFragment : BaseFragment() {
             val child = categoryTags.getChildAt(index)
             (child as TextView).text = requireContext().resources.getStringArray(R.array.categories)[index]
             if (bookVM.categoriesSelected.contains(index)) {
-                child.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), true))
+                child.background = StyleUtil.getDrawableForCategories(index, requireContext(), true)
             } else {
-                child.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), false))
+                child.background = StyleUtil.getDrawableForCategories(index, requireContext(), false)
             }
             child.setOnClickListener {
                 if (bookVM.categoriesSelected.contains(index)) {
                     bookVM.categoriesSelected.remove(index)
-                    it.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), false))
+                    it.background = StyleUtil.getDrawableForCategories(index, requireContext(), false)
                     child.setTextColor(StyleUtil.getAttributeColor(requireContext(), android.R.attr.textColorPrimary))
                 } else {
                     bookVM.categoriesSelected.add(index)
-                    it.setBackgroundDrawable(StyleUtil.getDrawableForCategories(index, requireContext(), true))
+                    it.background = StyleUtil.getDrawableForCategories(index, requireContext(), true)
                     child.setTextColor(StyleUtil.getAttributeColor(requireContext(), R.attr.colorSurface))
                 }
             }
@@ -62,7 +63,7 @@ class BookFragment : BaseFragment() {
         bookImage.setOnClickListener {
             ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
-        btnWrite.setBackgroundDrawable(StyleUtil.getRoundedShapeDrawable(StyleUtil.getAttributeColor(requireContext(), R.attr.colorControlActivated), 20f))
+        btnWrite.background = StyleUtil.getRoundedShapeDrawable(StyleUtil.getAttributeColor(requireContext(), R.attr.colorControlActivated), 20f)
         btnWrite.setOnClickListener {
             val generatedId: String = database.push().key!!
             database.child("Books").child(generatedId)
@@ -75,7 +76,9 @@ class BookFragment : BaseFragment() {
                         bookVM.imageUrl ?: "",
                         bookDescription.editableText.toString(),
                         bookVM.categoriesSelected,
-                        Date().time
+                        Date().time,
+                        ArrayList(),
+                        ArrayList()
                     )
                 )
             preferencesHelper.setIndex(preferencesHelper.getIndex() + 1)

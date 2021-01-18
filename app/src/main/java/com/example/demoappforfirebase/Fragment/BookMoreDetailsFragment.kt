@@ -8,18 +8,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import com.example.demoappforfirebase.Model.Book
-import com.example.demoappforfirebase.Model.BookViewModel
+import com.example.demoappforfirebase.Adapter.CommentsAdapter
+import com.example.demoappforfirebase.Model.*
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.example.demoappforfirebase.Utils.PreferencesHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_book_more_details.*
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookAuthor
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookImage
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookName
-import kotlinx.android.synthetic.main.fragment_book_more_details.bookDescription
 import java.io.IOException
 
 class BookMoreDetailsFragment : BaseFragment() {
@@ -45,8 +41,7 @@ class BookMoreDetailsFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHelpers()
-        val bookQuery: Query =
-            database.child("Books").child(bookId)
+        val bookQuery: Query = database.child("Books").child(bookId)
         bookQuery.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val book = dataSnapshot.getValue(Book::class.java)!!
@@ -59,12 +54,53 @@ class BookMoreDetailsFragment : BaseFragment() {
                 bookName.text = book.title
                 bookAuthor.text = book.author
                 bookDescription.text = book.description
+                bookVM.bookComments = book.comments ?: arrayListOf()
                 bookVM.book.value = book
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 AnalyticsUtil.logError(requireContext(), databaseError.toString())
             }
+        })
+
+        val commentsQuery = database.child("Books").child(bookId).child("comments")
+        commentsQuery.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                if (bookVM.bookComments != null) {
+                    val usersWhoCommented = ArrayList<User>()
+                    val database = FirebaseDatabase.getInstance().reference
+                    database.addListenerForSingleValueEvent(object: ValueEventListener{
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (postSnapshot in snapshot.children) {
+                                    if (postSnapshot.key == "Users") {
+                                        for (snapShot in postSnapshot.children) {
+                                            val user: User = snapShot.getValue(User::class.java)!!
+                                            if(!usersWhoCommented.contains(user)){
+                                                usersWhoCommented.add(user)
+                                            }
+                                        }
+                                    }
+                                }
+                                bookComments.adapter = CommentsAdapter(bookVM.bookComments, usersWhoCommented)
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            AnalyticsUtil.logError(requireContext(), error.toString())
+                        }
+                    })
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onCancelled(error: DatabaseError) {}
+
         })
 
         bookVM.book.observe(viewLifecycleOwner, { book ->
@@ -88,6 +124,12 @@ class BookMoreDetailsFragment : BaseFragment() {
                 }
             }
         })
+    }
+
+    private fun addToDatabase() {//TODO add comment to databse
+        //Omoguciti unos komentara
+        bookVM.book.value!!.comments.add(Comment(preferencesHelper.getUserId(), "ja sdbnsakjfasfuo polju skace", System.currentTimeMillis()))
+        database.child("Books").child(bookVM.book.value!!.bookId).child("comments").setValue(bookVM.book.value)
     }
 
     private fun setHelpers() {

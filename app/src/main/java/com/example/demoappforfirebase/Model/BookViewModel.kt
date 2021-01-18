@@ -14,7 +14,7 @@ class BookViewModel(application: Application) : AndroidViewModel(application) {
     var sortType = MutableLiveData<Int>()
     var currentCategories = MutableLiveData<ArrayList<Int>>()
     private val preferencesHelper = PreferencesHelper(application)
-
+    var bookComments = ArrayList<Comment>()
 
     init {
         sortType.value = preferencesHelper.getSortType()
