@@ -47,7 +47,7 @@ class CommentsAdapter(
         val user = usersDataSet.find { it.id == current.userID }
         holder.userName.text = StringBuilder().append(user?.name).append(" ").append(user?.surname).toString()
         holder.userComment.text = current.comment
-        if (user?.picture == "") {
+        if (user?.picture!!.isEmpty()) {
             holder.userNameFirstLetter.text = user.name.first().toString()
             holder.userImage.setBackgroundDrawable(
                 StyleUtil.getRoundedShapeDrawable(
@@ -57,14 +57,14 @@ class CommentsAdapter(
             )
         } else {
             try {
-                val image = ImageUtil.decodeFromFirebaseBase64(user?.picture)
+                val image = ImageUtil.decodeFromFirebaseBase64(user.picture)
                 holder.userImage.setImageBitmap(image)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
         holder.itemView.setOnClickListener {
-            showUserProfileFragment(user!!)
+            showUserProfileFragment(user)
         }
     }
 

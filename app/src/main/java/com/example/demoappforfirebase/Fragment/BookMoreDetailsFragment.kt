@@ -117,7 +117,7 @@ class BookMoreDetailsFragment : BaseFragment() {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             val user = snapshot.getValue(User::class.java)
                             userName.text = user?.name
-                            if (user?.picture == "") {
+                            if (user?.picture!!.isEmpty()) {
                                 userNameFirstLetter.text = user.name.first().toString()
                                 userImage.setBackgroundDrawable(
                                     StyleUtil.getRoundedShapeDrawable(
@@ -127,7 +127,7 @@ class BookMoreDetailsFragment : BaseFragment() {
                                 )
                             } else {
                                 try {
-                                    val image = ImageUtil.decodeFromFirebaseBase64(user?.picture)
+                                    val image = ImageUtil.decodeFromFirebaseBase64(user.picture)
                                     userImage.setImageBitmap(image)
                                 } catch (e: IOException) {
                                     e.printStackTrace()
