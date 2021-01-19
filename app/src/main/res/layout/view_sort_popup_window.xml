@@ -97,6 +97,34 @@
                         android:text="Z to A"
                         android:textAlignment="viewStart"
                         android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/action_most_liked_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="24dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:text="Most liked"
+                        android:textAlignment="viewStart"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/action_most_commented_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginStart="24dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="24dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:text="Most commented"
+                        android:textAlignment="viewStart"
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <RadioGroup
@@ -121,6 +149,16 @@
 
                     <RadioButton
                         android:id="@+id/action_z_to_a"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <RadioButton
+                        android:id="@+id/action_most_liked"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <RadioButton
+                        android:id="@+id/action_most_commented"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </RadioGroup>

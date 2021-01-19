@@ -54,9 +54,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var userVM: UserViewModel
     private lateinit var chatVM: ChatViewModel
 
-    enum class SortType { NEWER_FIRST, OLDER_FIRST, A_TO_Z, Z_TO_A }
+    enum class SortType { NEWER_FIRST, OLDER_FIRST, A_TO_Z, Z_TO_A, MOST_LIKED, MOST_COMMENTED }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.view_content_main)
         StyleUtil.stylizeStatusBar(this@MainActivity, true)
@@ -329,6 +330,8 @@ class MainActivity : AppCompatActivity() {
                 view.findViewById<RadioButton>(R.id.action_older_first).id -> bookVM.setNewSortType(SortType.OLDER_FIRST.ordinal)
                 view.findViewById<RadioButton>(R.id.action_a_to_z).id -> bookVM.setNewSortType(SortType.A_TO_Z.ordinal)
                 view.findViewById<RadioButton>(R.id.action_z_to_a).id -> bookVM.setNewSortType(SortType.Z_TO_A.ordinal)
+                view.findViewById<RadioButton>(R.id.action_most_liked).id -> bookVM.setNewSortType(SortType.MOST_LIKED.ordinal)
+                view.findViewById<RadioButton>(R.id.action_most_commented).id -> bookVM.setNewSortType(SortType.MOST_COMMENTED.ordinal)
             }
         }
         view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(
@@ -336,7 +339,9 @@ class MainActivity : AppCompatActivity() {
                 SortType.NEWER_FIRST.ordinal -> view.findViewById<RadioButton>(R.id.action_newer_first).id
                 SortType.OLDER_FIRST.ordinal -> view.findViewById<RadioButton>(R.id.action_older_first).id
                 SortType.A_TO_Z.ordinal -> view.findViewById<RadioButton>(R.id.action_a_to_z).id
-                else -> view.findViewById<RadioButton>(R.id.action_z_to_a).id
+                SortType.Z_TO_A.ordinal -> view.findViewById<RadioButton>(R.id.action_z_to_a).id
+                SortType.MOST_LIKED.ordinal -> view.findViewById<RadioButton>(R.id.action_most_liked).id
+                else -> view.findViewById<RadioButton>(R.id.action_most_commented).id
             }
         )
         view.findViewById<TextView>(R.id.action_newer_first_text).setOnClickListener {
@@ -350,6 +355,12 @@ class MainActivity : AppCompatActivity() {
         }
         view.findViewById<TextView>(R.id.action_z_to_a_text).setOnClickListener {
             view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_z_to_a).id)
+        }
+        view.findViewById<TextView>(R.id.action_most_liked).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_most_liked).id)
+        }
+        view.findViewById<TextView>(R.id.action_most_commented).setOnClickListener {
+            view.findViewById<RadioGroup>(R.id.action_sort_radio_group).check(view.findViewById<RadioButton>(R.id.action_most_commented).id)
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.categoriesRecycler)
         val layoutManager = FlexboxLayoutManager(this)
