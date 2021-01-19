@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp"
+    android:id="@+id/contactBookOwnerLayout"
     app:cardBackgroundColor="?android:attr/itemBackground"
     app:cardCornerRadius="2dp"
     app:cardMaxElevation="2dp"
+    android:layout_gravity="bottom"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="true">
 
@@ -21,13 +23,13 @@
             android:layout_height="48dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/commentUserImage"
+                android:id="@+id/userImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical" />
 
             <TextView
-                android:id="@+id/commentUserNameFirstLetter"
+                android:id="@+id/userNameFirstLetter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -36,25 +38,23 @@
                 android:textSize="20sp" />
         </FrameLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/userName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:orientation="vertical">
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="18sp" />
 
-            <TextView
-                android:id="@+id/commentUserName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/comment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/contactBookOwnerBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="contact owner" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

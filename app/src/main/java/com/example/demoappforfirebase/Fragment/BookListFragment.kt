@@ -12,6 +12,8 @@ import com.example.demoappforfirebase.Adapter.BooksAdapter
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.Model.BookViewModel
+import com.example.demoappforfirebase.Model.User
+import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.R
 import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
@@ -23,6 +25,7 @@ class BookListFragment : BaseFragment() {
     private lateinit var bookRecycler: RecyclerView
     private lateinit var fragmentHelper: FragmentHelper
     private lateinit var bookVM: BookViewModel
+    private lateinit var userVM: UserViewModel
     private var booksAdapter: BooksAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -38,15 +41,20 @@ class BookListFragment : BaseFragment() {
         createHelpers()
         bookRecycler = booksRecycler
         bookRecycler.layoutManager = LinearLayoutManager(requireContext())
-
+        bookVM.oldBooks.clear()
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists()) {
+                if (dataSnapshot.exists() && fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
                     for (postSnapshot in dataSnapshot.children) {
                         if (postSnapshot.key == "Books") {
                             for (snapShot in postSnapshot.children) {
                                 val book: Book = snapShot.getValue(Book::class.java)!!
                                 bookVM.addBook(book)
+                            }
+                        } else if (postSnapshot.key == "Users") {
+                            for (snapShot in postSnapshot.children) {
+                                val user: User = snapShot.getValue(User::class.java)!!
+                                userVM.allUsers.add(user)
                             }
                         }
                     }
@@ -90,6 +98,7 @@ class BookListFragment : BaseFragment() {
     private fun createHelpers() {
         fragmentHelper = FragmentHelper(requireActivity())
         bookVM = ViewModelProvider(requireActivity()).get(BookViewModel::class.java)
+        userVM = ViewModelProvider(requireActivity()).get(UserViewModel::class.java)
         database = FirebaseDatabase.getInstance().reference
     }
 
