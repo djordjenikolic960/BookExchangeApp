@@ -68,6 +68,7 @@ class BookMoreDetailsFragment : BaseFragment() {
                 }
                 bookTitle.text = book.title
                 bookAuthor.text = book.author
+                likeCount.text = book.usersThatLiked.size.toString()
                 bookVM.bookComments = book.comments ?: arrayListOf()
                 bookVM.book.value = book
             }

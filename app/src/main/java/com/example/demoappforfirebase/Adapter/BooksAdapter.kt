@@ -34,6 +34,7 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         val description: TextView = itemView.findViewById(R.id.shortDescription)
         val divider: View = itemView.findViewById(R.id.booksDivider)
         val like: ImageView = itemView.findViewById(R.id.likeBook)
+        val likeCount :TextView = itemView.findViewById(R.id.likeCount)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookHolder {
@@ -49,6 +50,7 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         holder.title.text = current.title
         holder.text.text = current.author
         holder.description.text = current.description
+        holder.likeCount.text = current.usersThatLiked.size.toString()
         if (holder.adapterPosition == itemCount - 1) {
             holder.divider.visibility = View.GONE
         }
