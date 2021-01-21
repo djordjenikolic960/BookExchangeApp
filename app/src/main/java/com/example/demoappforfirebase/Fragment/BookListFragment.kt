@@ -108,7 +108,9 @@ class BookListFragment : BaseFragment() {
                 MainActivity.SortType.NEWER_FIRST.ordinal -> book2.timeStamp.compareTo(book1.timeStamp)
                 MainActivity.SortType.OLDER_FIRST.ordinal -> book1.timeStamp.compareTo(book2.timeStamp)
                 MainActivity.SortType.A_TO_Z.ordinal -> book1.title.compareTo(book2.title)
-                else -> book2.title.compareTo(book1.title)
+                MainActivity.SortType.Z_TO_A.ordinal -> book2.title.compareTo(book1.title)
+                MainActivity.SortType.MOST_LIKED.ordinal -> book2.usersThatLiked.size.compareTo(book1.usersThatLiked.size)
+                else -> book2.comments.size.compareTo(book1.comments.size)
             }
         }
         return books

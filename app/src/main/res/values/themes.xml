@@ -26,4 +26,10 @@
         <item name="other_message_color">@color/colorSecondaryNotebook</item>
     </style>
 
+    <style name="SplashTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="android:windowBackground">@drawable/background_splash</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/colorPrimaryDarkMoon</item>
+    </style>
+
 </resources>
