@@ -7,6 +7,7 @@ import com.example.demoappforfirebase.Utils.PreferencesHelper
 
 class BookViewModel(application: Application) : AndroidViewModel(application) {
     var imageUrl: String? = null
+    var bookImageChanged = MutableLiveData(false)
     var categoriesSelected = ArrayList<Int>()
     var oldBooks = ArrayList<Book>()
     var currentBooks = MutableLiveData<ArrayList<Book>>()
