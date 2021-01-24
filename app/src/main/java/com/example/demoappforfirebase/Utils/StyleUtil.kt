@@ -68,7 +68,7 @@ object StyleUtil {
         if (shouldFill) {
             drawable.setColor(context.resources.getColor(optionsColor.getResourceId(position, -1)))
         } else {
-            drawable.setStroke(3, context.resources.getColor(optionsColor.getResourceId(position, -1)))
+            drawable.setStroke(2, context.resources.getColor(optionsColor.getResourceId(position, -1)))
             drawable.setColor(getAttributeColor(context, android.R.attr.itemBackground))
         }
         optionsColor.recycle()

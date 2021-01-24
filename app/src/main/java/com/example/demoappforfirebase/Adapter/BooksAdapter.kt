@@ -32,9 +32,8 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         val text: TextView = itemView.findViewById(R.id.author)
         val image: ImageView = itemView.findViewById(R.id.image)
         val description: TextView = itemView.findViewById(R.id.shortDescription)
-        val divider: View = itemView.findViewById(R.id.booksDivider)
         val like: ImageView = itemView.findViewById(R.id.likeBook)
-        val likeCount :TextView = itemView.findViewById(R.id.likeCount)
+        val likeCount: TextView = itemView.findViewById(R.id.likeCount)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookHolder {
@@ -51,9 +50,6 @@ class BooksAdapter(private var dataSet: ArrayList<Book>) :
         holder.text.text = current.author
         holder.description.text = current.description
         holder.likeCount.text = current.usersThatLiked.size.toString()
-        if (holder.adapterPosition == itemCount - 1) {
-            holder.divider.visibility = View.GONE
-        }
         BitmapUtil.updateHeartImageView(holder.like, current.usersThatLiked.contains(preferencesHelper.getUserId()))
         try {
             val image = ImageUtil.decodeFromFirebaseBase64(current.image)

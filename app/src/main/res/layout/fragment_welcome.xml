@@ -34,9 +34,20 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="12dp"
         android:gravity="center"
-        android:text="Read books, exchange books, bla blablablablblblblblblb"
+        android:text="That's the thing about books. They let you travel without moving your feet."
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="36dp"
+        android:text="-Jhumpa Lahiri"
         android:textColor="@color/black"
         android:textSize="18sp" />
 

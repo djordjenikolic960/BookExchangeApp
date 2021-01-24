@@ -114,6 +114,23 @@ class MainActivity : AppCompatActivity() {
         val databaseListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    if (dataSnapshot.exists() && fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
+                        for (postSnapshot in dataSnapshot.children) {
+                            if (postSnapshot.key == "Books") {
+                                for (snapShot in postSnapshot.children) {
+                                    val book: Book = snapShot.getValue(Book::class.java)!!
+                                    bookVM.addBook(book)
+                                }
+                                bookVM.currentBooks.value = bookVM.oldBooks
+                            } else if (postSnapshot.key == "Users") {
+                                for (snapShot in postSnapshot.children) {
+                                    val user: User = snapShot.getValue(User::class.java)!!
+                                    userVM.allUsers.add(user)
+                                }
+                            }
+                        }
+                    }
+
                     chatVM.idsOfUserThatOwnerChatsWith.clear()
                     chatVM.updateIdsOfUsersThatOwnerChatsWith(dataSnapshot)
                     if (chatVM.idsOfUserThatOwnerChatsWith.isNotEmpty()) {

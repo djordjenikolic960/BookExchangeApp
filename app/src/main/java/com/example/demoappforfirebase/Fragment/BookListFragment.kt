@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,10 +11,8 @@ import com.example.demoappforfirebase.Adapter.BooksAdapter
 import com.example.demoappforfirebase.MainActivity
 import com.example.demoappforfirebase.Model.Book
 import com.example.demoappforfirebase.Model.BookViewModel
-import com.example.demoappforfirebase.Model.User
 import com.example.demoappforfirebase.Model.UserViewModel
 import com.example.demoappforfirebase.R
-import com.example.demoappforfirebase.Utils.AnalyticsUtil
 import com.example.demoappforfirebase.Utils.FragmentHelper
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_book_list.*
@@ -41,32 +38,14 @@ class BookListFragment : BaseFragment() {
         createHelpers()
         bookRecycler = booksRecycler
         bookRecycler.layoutManager = LinearLayoutManager(requireContext())
-        bookVM.oldBooks.clear()
-        val databaseListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                if (dataSnapshot.exists() && fragmentHelper.isFragmentVisible(BookListFragment::class.java)) {
-                    for (postSnapshot in dataSnapshot.children) {
-                        if (postSnapshot.key == "Books") {
-                            for (snapShot in postSnapshot.children) {
-                                val book: Book = snapShot.getValue(Book::class.java)!!
-                                bookVM.addBook(book)
-                            }
-                        } else if (postSnapshot.key == "Users") {
-                            for (snapShot in postSnapshot.children) {
-                                val user: User = snapShot.getValue(User::class.java)!!
-                                userVM.allUsers.add(user)
-                            }
-                        }
-                    }
-                    bookVM.currentBooks.value = bookVM.oldBooks
-                }
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                AnalyticsUtil.logError(requireContext(), databaseError.toString())
+        if (bookVM.currentBooks.value!!.isNotEmpty()) {
+            if (booksAdapter == null) {
+                booksAdapter = BooksAdapter(getSortedBooks(bookVM.currentBooks.value!!, bookVM.sortType.value!!))
+                bookRecycler.adapter = booksAdapter
+            } else {
+                booksAdapter!!.updateDataSet(bookVM.currentBooks.value!!)
             }
         }
-
         bookVM.currentBooks.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 if (booksAdapter == null) {
@@ -75,8 +54,6 @@ class BookListFragment : BaseFragment() {
                 } else {
                     booksAdapter!!.updateDataSet(it)
                 }
-            } else {
-                Toast.makeText(requireContext(), "Still no books", Toast.LENGTH_SHORT).show()
             }
         })
 
@@ -91,8 +68,6 @@ class BookListFragment : BaseFragment() {
             }
             bookVM.currentBooks.value = allBooks
         })
-
-        database.addValueEventListener(databaseListener)
     }
 
     private fun createHelpers() {
