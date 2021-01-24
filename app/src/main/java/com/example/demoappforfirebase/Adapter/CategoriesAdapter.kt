@@ -39,21 +39,23 @@ class CategoriesAdapter :
             } else {
                 checkedCategories.add(holder.adapterPosition)
             }
-            updateViewHolder(checkedCategories.contains(holder.adapterPosition), holder)
+            updateViewHolder(checkedCategories.contains(position), holder)
             bookVM.currentCategories.value = checkedCategories
         }
     }
 
     override fun getItemCount(): Int {
-        return 10
+        return 9
     }
 
     private fun updateViewHolder(update: Boolean, holder: CategoriesHolder) {
         holder.categoriesText.setBackgroundDrawable(StyleUtil.getDrawableForCategories(holder.adapterPosition, holder.itemView.context, update))
         if (update) {
-            holder.categoriesText.setTextColor(StyleUtil.getAttributeColor(holder.categoriesText.context, R.attr.colorSurface))
+            holder.categoriesText.setTextColor(holder.itemView.resources.getColor(R.color.white))
         } else {
-            holder.categoriesText.setTextColor(StyleUtil.getAttributeColor(holder.categoriesText.context, android.R.attr.textColorPrimary))
+            val optionsColor = holder.itemView.context.resources.obtainTypedArray(R.array.categories_colors)
+            holder.categoriesText.setTextColor(holder.itemView.context.resources.getColor(optionsColor.getResourceId(holder.adapterPosition, -1)))
+            optionsColor.recycle()
         }
     }
 

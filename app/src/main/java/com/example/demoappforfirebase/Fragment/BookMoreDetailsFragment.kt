@@ -187,7 +187,9 @@ class BookMoreDetailsFragment : BaseFragment() {
             bookDescription.text = bookVM.book.value?.description
             bookComments.isVisible = false
             commentVM.shouldHideCommentLayout.value = true
-            contactBookOwnerLayout.isVisible = true
+            if(bookVM.book.value!!.ownerId != preferencesHelper.getUserId()) {
+                contactBookOwnerLayout.isVisible = true
+            }
         } else {
             bookDescription.isVisible = false
             commentLayout.isVisible = true

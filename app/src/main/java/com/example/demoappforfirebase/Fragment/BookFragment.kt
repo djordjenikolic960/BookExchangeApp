@@ -45,22 +45,27 @@ class BookFragment : BaseFragment() {
             } else {
                 child.background = StyleUtil.getDrawableForCategories(index, requireContext(), false)
             }
+            val optionsColor = context!!.resources.obtainTypedArray(R.array.categories_colors)
+            child.setTextColor(context!!.resources.getColor(optionsColor.getResourceId(index, -1)))
+            optionsColor.recycle()
             child.setOnClickListener {
                 if (bookVM.categoriesSelected.contains(index)) {
                     bookVM.categoriesSelected.remove(index)
                     it.background = StyleUtil.getDrawableForCategories(index, requireContext(), false)
-                    child.setTextColor(StyleUtil.getAttributeColor(requireContext(), android.R.attr.textColorPrimary))
+                    val optionsColor = context!!.resources.obtainTypedArray(R.array.categories_colors)
+                    child.setTextColor(context!!.resources.getColor(optionsColor.getResourceId(index, -1)))
+                    optionsColor.recycle()
                 } else {
                     bookVM.categoriesSelected.add(index)
                     it.background = StyleUtil.getDrawableForCategories(index, requireContext(), true)
-                    child.setTextColor(StyleUtil.getAttributeColor(requireContext(), R.attr.colorSurface))
+                    child.setTextColor(resources.getColor(R.color.white))
                 }
             }
         }
         bookImage.setOnClickListener {
             ImageUtil.onLaunchCamera(requireActivity() as MainActivity)
         }
-        btnWrite.background = StyleUtil.getRoundedShapeDrawable(StyleUtil.getAttributeColor(requireContext(), R.attr.colorControlActivated), 20f)
+        btnWrite.background = StyleUtil.getRoundedShapeDrawable(StyleUtil.getAttributeColor(requireContext(), android.R.attr.itemBackground), 20f)
         btnWrite.setOnClickListener {
             val generatedId: String = database.push().key!!
             database.child("Books").child(generatedId)
