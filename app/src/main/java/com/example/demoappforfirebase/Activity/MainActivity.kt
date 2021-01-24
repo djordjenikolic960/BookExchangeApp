@@ -223,6 +223,7 @@ class MainActivity : AppCompatActivity() {
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
                         bookVM.imageUrl = bitmap?.let { ImageUtil.encodeBitmap(it) }
+                        bookVM.bookImageChanged.value = true
                     } else if (fragmentHelper.isFragmentVisible(UserProfileFragment::class.java)) {
                         userVM.imageUrl.value = bitmap?.let { ImageUtil.encodeBitmap(it) }
                     }
@@ -234,10 +235,11 @@ class MainActivity : AppCompatActivity() {
             else -> {
                 if (resultCode == RESULT_OK && data != null) {
                     val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, data.data)
+                    bookVM.imageUrl = bitmap?.let { ImageUtil.encodeBitmap(it) }
                     if (fragmentHelper.isFragmentVisible(BookFragment::class.java)) {
                         bookImage.setImageBitmap(bitmap)
+                        bookVM.bookImageChanged.value = true
                     }
-                    bookVM.imageUrl = bitmap?.let { ImageUtil.encodeBitmap(it) }
                 }
             }
         }

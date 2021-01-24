@@ -88,6 +88,12 @@ class BookFragment : BaseFragment() {
             fragmentHelper.replaceFragment(BookListFragment::class.java)
             bookVM.imageUrl = ""
         }
+
+        bookVM.bookImageChanged.observe(viewLifecycleOwner, {
+            if(it && bookVM.imageUrl!= null && bookVM.imageUrl!!.isNotEmpty()){
+                bookImage.setImageBitmap( ImageUtil.decodeFromFirebaseBase64(bookVM.imageUrl))
+            }
+        })
     }
 
     private fun createHelpers() {
